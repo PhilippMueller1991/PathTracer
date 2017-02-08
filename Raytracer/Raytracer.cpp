@@ -15,6 +15,9 @@
 #define IMAGE_WIDTH 640
 #define IMAGE_HEIGHT 640
 
+#define RAYTRACER_MAX_BOUNCE 1
+
+
 struct RGB {
 public:
 	// RBG values have to be normalized
@@ -99,16 +102,75 @@ void SaveImageAsBitmap(std::string filename, int width, int height, int dpi, con
 	fclose(imageFile);
 }
 
+int ComputeFirstRayObjectIntersection(const Ray& camRay, const std::vector<SceneObject*>& objects)
+{
+	int idxMin = -1;
+	float minDistance = FLT_MAX;
+	for (uint32_t i = 0; i < objects.size(); i++)
+	{
+		float intersectionDistance = objects[i]->findIntersection(camRay);
+		if (intersectionDistance > 0 && intersectionDistance < minDistance)
+		{
+			minDistance = intersectionDistance;
+			idxMin = i;
+		}
+	}
+
+	return idxMin;
+}
+
+Color EvaluateLocalLightingModel(Vector3 normal, Material mat)
+{
+	// TODO
+	// FOR DEBUG RETURN MATERIAL COLOR
+	return mat.color;
+}
+
+Color Traverse(const Ray& ray, const std::vector<SceneObject*>& objects)
+{
+	int idx = ComputeFirstRayObjectIntersection(ray, objects);
+
+	// No object was hit, return background color
+	if (idx < 0)
+		return Color(1, 1, 1, 0);
+
+	// Pathtracer: Randomly choose one of the following rays: 
+	// { normal, reflection, refraction }
+	Vector3 normal;
+	Color color = EvaluateLocalLightingModel(normal, objects[idx]->material);
+	
+	// Pathtracer: Needs additional material property diffuse in recursive call
+	//Material mat;
+	//return color + mat.ks * Traverse(reflect) + mat.kt * Traverse(refract);
+
+	return color;
+}
+
+//############################## PSEUDEO ALGORITHM ##############################
+//foreach(pixel)
+//{
+//	ray = GetRay(viewPoint, pixelCenter)
+//	pixel color = Traverse(ray)
+//}
+//Traverse(ray)
+//{
+//	compute FirstRay-ObjectIntersection
+//	compute normal, reflection and refraction ray
+//	color = EvaluateLocalLightingModel(normal)
+//	return color + ks * Traverse(reflect) + kt * Traverse(refract)
+//}
+//###############################################################################
 int main(int argc, char** argv)
 {
 	std::cout << "Rendering scene..." << std::endl;
 
-	// Init random number generator
+	//###################### INITIALIZATION ######################
+	// Random number generator
 	srand(static_cast<unsigned>(time(0)));
-
+	// Raytracer
+	Ray::maxBounces = RAYTRACER_MAX_BOUNCE;
 	// Image Settings
 	const float aspectRatio = (float)IMAGE_WIDTH / (float)IMAGE_HEIGHT;
-
 	// Camera
 	const Vector3 camPos(3.0f, 1.5f, -4.0f);
 	const Vector3 lookAt(0, 0, 0);
@@ -125,9 +187,10 @@ int main(int argc, char** argv)
 	const Light pointLight(Vector3(-7, 10, -10), white);
 	// Scene objects
 	std::vector<SceneObject*> sceneObjects;
-	sceneObjects.push_back(static_cast<SceneObject*>(new Sphere(Vector3(0, 0, 0), 0.5f, matGreenish)));
-	sceneObjects.push_back(static_cast<SceneObject*>(new Plane(-Vector3(0, 1, 0), Vector3::up, matRed)));
+	sceneObjects.push_back(new Sphere(Vector3(0, 0, 0), 0.5f, matGreenish));
+	sceneObjects.push_back(new Plane(-Vector3(0, 1, 0), Vector3::up, matRed));
 
+	//###################### GENERATE IMAGE ######################
 	RGB *pixels = new RGB[IMAGE_WIDTH * IMAGE_HEIGHT];
 	for (int y = 0; y < IMAGE_HEIGHT; y++)
 	{
@@ -139,46 +202,19 @@ int main(int argc, char** argv)
 			// TODO: Shoot multiple rays with random jitter (later Sobol jitter, or Multi-Jittered) for AA
 			Vector3 rayDir = cam.PixelToRayDir(x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
 			Ray camRay(cam.pos, rayDir);
-
-			// Test for intersections
-			int idxMin = -1;
-			float minDistance = FLT_MAX;
-			for (uint32_t i = 0; i < sceneObjects.size(); i++)
-			{
-				float intersectionDistance = sceneObjects[i]->findIntersection(camRay);
-				if (intersectionDistance > 0 && intersectionDistance < minDistance)
-				{
-					minDistance = intersectionDistance;
-					idxMin = i;
-				}
-			}
-
-			// Write color of winning diffuse object to bitmap
-			if (idxMin > -1)
-			{
-				pixels[idx].r = sceneObjects[idxMin]->material.color.r;
-				pixels[idx].g = sceneObjects[idxMin]->material.color.g;
-				pixels[idx].b = sceneObjects[idxMin]->material.color.b;
-			}
-			else // Fill image background with white color
-			{
-				pixels[idx].r = 1.0f + (x + y) % 4 * -0.1f;
-				pixels[idx].g = 1.0f + (x + y) % 4 * -0.1f;
-				pixels[idx].b = 1.0f + (x + y) % 4 * -0.1f;
-			}
+			Color color = Traverse(camRay, sceneObjects);
+			pixels[idx].r = color.r;
+			pixels[idx].g = color.g;
+			pixels[idx].b = color.b;
 		}
 	}
 
-	// Save image
+	//###################### SAVE IMAGE ######################
 	std::cout << "Writing scene.bmp" << std::endl;
 	SaveImageAsBitmap("scene.bmp", IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_DPI, pixels);
+	// Cleanup
 	delete pixels;
 	sceneObjects.clear();
-
-	// Wait for user interaction
-	std::cout << "Finished writing to file" << std::endl;
-	//char* test = new char[100];
-	//std::cin >> test;
-
+	
 	return EXIT_SUCCESS;
 }
