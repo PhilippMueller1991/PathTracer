@@ -7,6 +7,7 @@
 
 #include "Vector3.h"
 #include "Camera.h"
+#include "Ray.h"
 #include "Light.h"
 #include "Sphere.h"
 #include "Plane.h"
@@ -27,6 +28,14 @@ public:
 
 	RGB() {}
 	RGB(float x, float y, float z) : r(x), g(y), b(z) {}
+};
+
+struct Intersection
+{
+	int idx;
+	float distance;
+
+	Intersection(int idx, float distance) : idx(idx), distance(distance) {}
 };
 
 void SaveImageAsBitmap(std::string filename, int width, int height, int dpi, const RGB *data)
@@ -102,21 +111,20 @@ void SaveImageAsBitmap(std::string filename, int width, int height, int dpi, con
 	fclose(imageFile);
 }
 
-int ComputeFirstRayObjectIntersection(const Ray& camRay, const std::vector<SceneObject*>& objects)
+Intersection ComputeFirstRayObjectIntersection(const Ray& camRay, const std::vector<SceneObject*>& objects)
 {
-	int idxMin = -1;
-	float minDistance = FLT_MAX;
+	Intersection nearestIntersection(-1, FLT_MAX);
 	for (uint32_t i = 0; i < objects.size(); i++)
 	{
 		float intersectionDistance = objects[i]->findIntersection(camRay);
-		if (intersectionDistance > 0 && intersectionDistance < minDistance)
+		if (intersectionDistance > 0 && intersectionDistance < nearestIntersection.distance)
 		{
-			minDistance = intersectionDistance;
-			idxMin = i;
+			nearestIntersection.distance = intersectionDistance;
+			nearestIntersection.idx = i;
 		}
 	}
 
-	return idxMin;
+	return nearestIntersection;
 }
 
 Color EvaluateLocalLightingModel(Vector3 normal, Material mat)
@@ -126,23 +134,34 @@ Color EvaluateLocalLightingModel(Vector3 normal, Material mat)
 	return mat.color;
 }
 
+int IsInShadow(const Vector3& camPos, const Vector3& hitPos, const std::vector<SceneObject*>& objects)
+{
+	// TODO
+	return 0;
+}
+
 Color Traverse(const Ray& ray, const std::vector<SceneObject*>& objects)
 {
-	int idx = ComputeFirstRayObjectIntersection(ray, objects);
-
+	Intersection intersection = ComputeFirstRayObjectIntersection(ray, objects);
+	
 	// No object was hit, return background color
-	if (idx < 0)
+	if (intersection.idx < 0)
 		return Color(1, 1, 1, 0);
 
 	// Pathtracer: Randomly choose one of the following rays: 
 	// { normal, reflection, refraction }
 	Vector3 normal;
-	Color color = EvaluateLocalLightingModel(normal, objects[idx]->material);
-	
+	// TODO: cast shadow ray at each ray object intersection
+	Vector3 hitPos = ray.direction * intersection.distance + ray.origin;
+	Color color;
+	if (!IsInShadow(hitPos, hitPos, objects))
+		color = EvaluateLocalLightingModel(normal, objects[intersection.idx]->material);
+	else
+		color = 0.2f * EvaluateLocalLightingModel(normal, objects[intersection.idx]->material);
+
 	// Pathtracer: Needs additional material property diffuse in recursive call
 	//Material mat;
 	//return color + mat.ks * Traverse(reflect) + mat.kt * Traverse(refract);
-
 	return color;
 }
 
@@ -211,7 +230,7 @@ int main(int argc, char** argv)
 
 	//###################### SAVE IMAGE ######################
 	std::cout << "Writing scene.bmp" << std::endl;
-	SaveImageAsBitmap("scene.bmp", IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_DPI, pixels);
+	SaveImageAsBitmap("..//scene.bmp", IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_DPI, pixels);
 	// Cleanup
 	delete pixels;
 	sceneObjects.clear();

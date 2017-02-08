@@ -9,9 +9,7 @@
 class Material
 {
 public:
-	float ks;	// specular ray spawn probability
-	float kd;	// diffuse ray spawn probability
-	float kt;	// transmission ray spawn probablity
+	float ks, kd, kt;
 	Color color;
 
 	Material(float specular = 1.0f, float diffuse = 1.0f, float transmisson = 0.0f, Color color = Color(0, 0, 0, 0)) : color(color)

@@ -3,6 +3,8 @@
 #include <math.h>
 #include <random>
 
+int Ray::maxBounces = 1;
+
 Vector3 Ray::chooseRandomDirection(Ray::RayType rayType, Vector3 n)
 {
 	// Probability of choosing directions should be proportional to the cosine between
