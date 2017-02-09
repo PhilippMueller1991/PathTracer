@@ -1,3 +1,7 @@
 #include "Color.h"
 
-// TODO
+void Color::Clamp()
+{
+	float sum = r + g + b;
+	*this /= sum;
+}

@@ -18,6 +18,12 @@
 
 #define RAYTRACER_MAX_BOUNCE 1
 
+// TODO:
+//	- Write Image class
+//	- Write Scene class and shift main into it make scene data global for raytracer
+
+const float ambientIntensity = 0.1f;
+const Color ambientColor(0.9f, 0.9f, 1);
 
 struct RGB {
 public:
@@ -111,12 +117,12 @@ void SaveImageAsBitmap(std::string filename, int width, int height, int dpi, con
 	fclose(imageFile);
 }
 
-Intersection ComputeFirstRayObjectIntersection(const Ray& camRay, const std::vector<SceneObject*>& objects)
+Intersection ComputeFirstRayObjectIntersection(const Ray& ray, const std::vector<SceneObject*>& objects)
 {
 	Intersection nearestIntersection(-1, FLT_MAX);
 	for (uint32_t i = 0; i < objects.size(); i++)
 	{
-		float intersectionDistance = objects[i]->findIntersection(camRay);
+		float intersectionDistance = objects[i]->findIntersection(ray);
 		if (intersectionDistance > 0 && intersectionDistance < nearestIntersection.distance)
 		{
 			nearestIntersection.distance = intersectionDistance;
@@ -127,37 +133,53 @@ Intersection ComputeFirstRayObjectIntersection(const Ray& camRay, const std::vec
 	return nearestIntersection;
 }
 
-Color EvaluateLocalLightingModel(Vector3 normal, Material mat)
+Color EvaluateLocalLightingModel(const Vector3& normal, const Material& mat, const Light& light)
 {
-	// TODO
 	// FOR DEBUG RETURN MATERIAL COLOR
-	return mat.color;
+	return mat.diffuseColor;
+
+	//Color color = ambientIntensity * ambientColor;
+	//return color;
 }
 
-int IsInShadow(const Vector3& camPos, const Vector3& hitPos, const std::vector<SceneObject*>& objects)
+// TODO: IsInShadow produces much noise for sphere intersections
+bool IsInShadow(const Vector3& hitPos, const std::vector<SceneObject*>& objects, const Light& light)
 {
-	// TODO
-	return 0;
+	Vector3 rayDir = (light.pos - hitPos).Normalize();
+	Ray shadowRay(hitPos, rayDir, Ray::RAY_SHADOW, 1);
+	Intersection intersection = ComputeFirstRayObjectIntersection(shadowRay, objects);
+
+	// Calculations differs in range 10e-7
+	float lightDistance = (light.pos - hitPos).Dot(rayDir);	//(light.pos - hitPos).Magnitude();
+
+	if (intersection.idx < 0 || intersection.distance > lightDistance)
+		return false;
+
+	return true;
 }
 
-Color Traverse(const Ray& ray, const std::vector<SceneObject*>& objects)
+Color Traverse(const Ray& ray, const std::vector<SceneObject*>& objects, const std::vector<Light*>& lights)
 {
+	Color color(1, 1, 1);
 	Intersection intersection = ComputeFirstRayObjectIntersection(ray, objects);
 	
 	// No object was hit, return background color
 	if (intersection.idx < 0)
-		return Color(1, 1, 1, 0);
+		return color;
 
 	// Pathtracer: Randomly choose one of the following rays: 
 	// { normal, reflection, refraction }
-	Vector3 normal;
-	// TODO: cast shadow ray at each ray object intersection
 	Vector3 hitPos = ray.direction * intersection.distance + ray.origin;
-	Color color;
-	if (!IsInShadow(hitPos, hitPos, objects))
-		color = EvaluateLocalLightingModel(normal, objects[intersection.idx]->material);
+	Vector3 normal = objects[intersection.idx]->getNormalAt(hitPos);
+
+	// For now only test for one light
+	const Light& light = *lights[0];
+	// Early exit for normals that point away from current light
+	bool inShadow = normal.Dot(light.pos - hitPos) < 0;
+	if (!inShadow && !IsInShadow(hitPos, objects, light))
+		color = EvaluateLocalLightingModel(normal, objects[intersection.idx]->material, light);
 	else
-		color = 0.2f * EvaluateLocalLightingModel(normal, objects[intersection.idx]->material);
+		color = 0.1f * EvaluateLocalLightingModel(normal, objects[intersection.idx]->material, light);
 
 	// Pathtracer: Needs additional material property diffuse in recursive call
 	//Material mat;
@@ -191,23 +213,30 @@ int main(int argc, char** argv)
 	// Image Settings
 	const float aspectRatio = (float)IMAGE_WIDTH / (float)IMAGE_HEIGHT;
 	// Camera
-	const Vector3 camPos(3.0f, 1.5f, -4.0f);
+	const Vector3 camPos(0.0f, 1.0f, -4.0f);
 	const Vector3 lookAt(0, 0, 0);
 	const Vector3 camDir = (lookAt - camPos).Normalize();
 	Camera cam = Camera(camPos, camDir);
 	// Colors
-	const Color white(1, 1, 1, 0);
-	const Color greenish(0.3f, 1.0f, 0.5f, 0.3f);
-	const Color red(1.0f, 0.1f, 0.2f, 0.0f);
+	const Color white(1, 1, 1);
+	const Color green(0.3f, 1.0f, 0.5f);
+	const Color red(1.0f, 0.1f, 0.2f);
+	const Color blue(0.1f, 0.1f, 0.9f);
 	// Materials
-	const Material matGreenish(1, 2, 1, greenish);
+	const Material matGreen(1, 2, 1, green);
 	const Material matRed(2, 1, 1, red);
+	const Material matBlue(2, 1, 1, blue);
 	// Lights
-	const Light pointLight(Vector3(-7, 10, -10), white);
+	std::vector<Light*> lights;
+	//lights.push_back(new Light(Vector3(7, 6, 10), white));
+	lights.push_back(new Light(Vector3(2, 6, 2), white));
 	// Scene objects
 	std::vector<SceneObject*> sceneObjects;
-	sceneObjects.push_back(new Sphere(Vector3(0, 0, 0), 0.5f, matGreenish));
-	sceneObjects.push_back(new Plane(-Vector3(0, 1, 0), Vector3::up, matRed));
+	sceneObjects.push_back(new Sphere(Vector3(0.4f, -0.5f, 2.0f), 0.5f, matRed));
+	sceneObjects.push_back(new Sphere(Vector3(-0.3f, -0.75f, 0.8f), 0.25f, matBlue));
+	sceneObjects.push_back(new Sphere(Vector3(0, 0.5f, 0), 0.2f, matRed));
+	sceneObjects.push_back(new Sphere(Vector3(0.1f, 1, 0), 0.2f, matBlue));
+	sceneObjects.push_back(new Plane(Vector3(0, -1, 0), Vector3::up, matGreen));
 
 	//###################### GENERATE IMAGE ######################
 	RGB *pixels = new RGB[IMAGE_WIDTH * IMAGE_HEIGHT];
@@ -221,12 +250,13 @@ int main(int argc, char** argv)
 			// TODO: Shoot multiple rays with random jitter (later Sobol jitter, or Multi-Jittered) for AA
 			Vector3 rayDir = cam.PixelToRayDir(x, y, IMAGE_WIDTH, IMAGE_HEIGHT);
 			Ray camRay(cam.pos, rayDir);
-			Color color = Traverse(camRay, sceneObjects);
+			Color color = Traverse(camRay, sceneObjects, lights);
 			pixels[idx].r = color.r;
 			pixels[idx].g = color.g;
 			pixels[idx].b = color.b;
 		}
 	}
+
 
 	//###################### SAVE IMAGE ######################
 	std::cout << "Writing scene.bmp" << std::endl;

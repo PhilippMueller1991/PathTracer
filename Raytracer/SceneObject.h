@@ -14,8 +14,6 @@ public:
 	~SceneObject() {}
 
 	virtual Vector3 getNormalAt(Vector3 pos) = 0;
-
-	virtual Vector3 getIntersetctionPoint(Ray ray) = 0;
 	virtual float findIntersection(Ray ray) = 0;
 };
 

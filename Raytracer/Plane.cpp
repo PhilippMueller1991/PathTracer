@@ -1,23 +1,17 @@
 #include "Plane.h"
+#include <math.h>
 
 Vector3 Plane::getNormalAt(Vector3 pos)
 {
 	return normal;
 }
 
-Vector3 Plane::getIntersetctionPoint(Ray ray)
-{
-	float d = findIntersection(ray);
-	return d * ray.direction;
-}
-
 float Plane::findIntersection(Ray ray)
 {
 	float denominator = ray.direction.Dot(normal);
 	float enumerator = (pos - ray.origin).Dot(normal);
-	//float enumerator = -(ray.origin.Dot(normal) + pos.Magnitude());
 
-	if (denominator == 0 || enumerator == 0)
+	if (fabsf(denominator) <= EPS || fabsf(enumerator) <= EPS)
 	{
 		return -1;
 	}

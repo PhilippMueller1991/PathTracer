@@ -5,7 +5,7 @@
 class Ray
 {
 public:
-	const enum RayType { RAY_DIFFUSE, RAY_SPECULAR, RAY_TRANSMISSION };
+	const enum RayType { RAY_DIFFUSE, RAY_SPECULAR, RAY_TRANSMISSION, RAY_SHADOW };
 	static int maxBounces;	// Must be set on initialization
 
 	RayType type;

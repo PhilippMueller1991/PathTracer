@@ -13,8 +13,6 @@ public:
 	~Plane() {}
 
 	Vector3 getNormalAt(Vector3 pos);
-
-	Vector3 getIntersetctionPoint(Ray ray);
 	float findIntersection(Ray ray);
 };
 

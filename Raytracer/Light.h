@@ -9,9 +9,11 @@ class Light
 public:
 	Vector3 pos;
 	Color color;
+	float intensity;
 
-	Light() : pos(Vector3(0,0,0)), color(Color(1,1,1,0)) {}
-	Light(Vector3 position, Color color) : pos(position), color(color) {}
+	Light() : pos(Vector3(0,0,0)), color(Color(1,1,1)), intensity(1.0f) {}
+	Light(Vector3 position, Color color = Color(1, 1, 1), float intensity = 1.0f) 
+		: pos(position), color(color), intensity(intensity) {}
 	~Light() {}
 };
 

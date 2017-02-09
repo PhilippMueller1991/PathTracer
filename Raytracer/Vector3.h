@@ -1,5 +1,9 @@
 #pragma once
 
+#include <iostream>
+
+#define EPS 0.001f
+
 class Vector3
 {
 public:
@@ -65,6 +69,11 @@ public:
 	Vector3 operator-()
 	{
 		return Vector3(-x, -y, -z);
+	}
+	friend std::ostream& operator<<(std::ostream& os, const Vector3& obj)
+	{
+		os << "Vector3(" << obj.x << "," << obj.y << "," << obj.z << ")";
+		return os;
 	}
 
 	// Auxiliary methods

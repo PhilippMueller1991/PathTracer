@@ -14,8 +14,6 @@ public:
 	~Sphere() {}
 
 	Vector3 getNormalAt(Vector3 pos);
-
 	float findIntersection(Ray ray);
-	Vector3 getIntersetctionPoint(Ray ray);
 };
 
