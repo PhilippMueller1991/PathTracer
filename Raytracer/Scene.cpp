@@ -10,7 +10,7 @@
 // Materials
 // Can't be const because global predefined colors are not initialized to the compile time
 Material matGreen(1, 0, 0, Color::green);
-Material matRed(2, 1, 0, Color::red);
+Material matRed(1, 5, 0, Color::red);
 Material matBlue(5, 1, 0, Color::blue);
 
 int main(int argc, char** argv)
@@ -19,15 +19,15 @@ int main(int argc, char** argv)
 	//######################### INITIALIZATION #########################//
 	// Random number generator
 	srand(static_cast<unsigned>(time(0)));
-		
-	// Scene
-	Scene scene = Scene();
-	
+
 	// Camera
 	const Vector3 camPos(0.0f, 1.0f, -4.0f);
 	const Vector3 lookAt(0, 0, 0);
 	const Vector3 camDir = (lookAt - camPos).Normalize();
-	scene.cam = Camera(camPos, camDir);
+	Camera cam = Camera(camPos, camDir, IMAGE_WIDTH, IMAGE_HEIGHT);
+
+	// Scene
+	Scene scene = Scene(cam);
 
 	// Lights
 	scene.lights.push_back(new Light(Vector3(2, 6, 2), Color::white));

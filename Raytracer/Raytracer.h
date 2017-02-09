@@ -26,6 +26,7 @@ public:
 	};
 
 	static int maxBounces;
+	static int samplesPerPixel;
 	Scene* scene;
 
 	Raytracer() 

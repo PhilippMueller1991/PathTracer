@@ -14,9 +14,9 @@ public:
 	std::vector<SceneObject*> objects;
 	std::vector<Light*> lights;
 
-	Scene()
+	Scene(Camera cam) 
+		: cam(cam)
 	{
-
 	}
 	~Scene() 
 	{

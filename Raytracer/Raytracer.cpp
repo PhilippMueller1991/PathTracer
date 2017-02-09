@@ -4,6 +4,7 @@
 #include <math.h>
 
 int Raytracer::maxBounces = 1;
+int Raytracer::samplesPerPixel = 1;
 
 const float ambientIntensity = 0.05f;
 const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 1);
@@ -99,8 +100,18 @@ void Raytracer::Render(int width, int height)
 			int idx = y * img.width + x;
 			// TODO: Accomodate for aspectRatio
 			// TODO: Shoot multiple rays with random jitter (later Sobol jitter, or Multi-Jittered) for AA
-			Ray camRay(cam.pos, cam.PixelToRayDir(x, y, img.width, img.width));
-			Color color = Traverse(camRay);
+			Color color;
+			Ray camRay(cam.pos, cam.PixelToRayDir(x, y));
+			color += Traverse(camRay);
+			float xOffset, yOffset;	// Must be in range(-0.5,0.5)
+			for (int s = 1; s < samplesPerPixel; s++)
+			{
+				xOffset = (float)rand() / (float)RAND_MAX - 0.5f;
+				yOffset = (float)rand() / (float)RAND_MAX - 0.5f;
+				camRay = Ray(cam.pos, cam.PixelToRayDir(x, y, xOffset, yOffset));
+				color += Traverse(camRay);
+			}
+			color /= samplesPerPixel;
 			img.SetPixel(idx, color);
 		}
 	}
