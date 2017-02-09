@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+// TODO: Rewrite such that r,g,b are discrete (Should be better for performance)
 class Color
 {
 public:
@@ -75,5 +76,6 @@ public:
 	static const Color green;
 	static const Color blue;
 	static const Color yellow;
+	static const Color orange;
 };
 

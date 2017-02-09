@@ -9,7 +9,7 @@ class SceneObject
 public:
 	Material material;
 
-	SceneObject() : material(1,2,1) {}
+	SceneObject() : material(1,2) {}
 	SceneObject(Material m) : material(m) {}
 	~SceneObject() {}
 

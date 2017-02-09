@@ -1,5 +1,8 @@
 #include "Ray.h"
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif // !_USE_MATH_DEFINES
 #include <math.h>
 #include <random>
 
@@ -32,16 +35,16 @@ Vector3 Ray::chooseRandomDirection(Ray::RayType rayType, Vector3 n)
 // TODO: Change it so it returns correct oriented Vector or add additional methods to do so
 Vector3 Ray::UniformSampleHemisphere(float u1, float u2)
 {
-    const float r = std::sqrtf(1.0f - u1 * u1);
+    const float r = sqrtf(1.0f - u1 * u1);
     const float phi = 2 * std::_Pi * u2;
  
-    return Vector3(std::cosf(phi) * r, std::sinf(phi) * r, u1);
+    return Vector3(cosf(phi) * r, sinf(phi) * r, u1);
 }
 
 Vector3 Ray::CosineSampleHemisphere(float u1, float u2)
 {
-	const float r = std::sqrtf(u1);
-	const float phi = 2 * std::_Pi * u2;
+	const float r = sqrtf(u1);
+	const float phi = 2 * M_PI * u2;
 
-	return Vector3(std::cosf(phi) * r, std::sinf(phi) * r, std::sqrtf(std::fmax(0.0f, 1.0f - u1)));
+	return Vector3(cosf(phi) * r, sinf(phi) * r, sqrtf(std::fmax(0.0f, 1.0f - u1)));
 }

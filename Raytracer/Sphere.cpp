@@ -17,7 +17,7 @@ float Sphere::findIntersection(Ray ray)
 	float c = delta.Dot(delta) - (r * r);
 
 	float root = b * b - 4.0f * c;
-	if (root < 0)
+	if (root < EPS)
 		return -1;
 	if (root == 0)
 		return -b;

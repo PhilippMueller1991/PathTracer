@@ -1,12 +1,16 @@
 #include "Raytracer.h"
 
+#ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
+#endif // !_USE_MATH_DEFINES
 #include <math.h>
 
-int Raytracer::maxBounces = 1;
-int Raytracer::samplesPerPixel = 1;
+#define PI static_cast<float>(M_PI)
 
-const float ambientIntensity = 0.05f;
+int Raytracer::maxBounces;
+int Raytracer::samplesPerPixel;
+
+const float ambientIntensity = 0.0f;
 const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 1);
 
 Raytracer::Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
@@ -25,7 +29,18 @@ Raytracer::Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& 
 	return nearestIntersection;
 }
 
-Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
+Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat)
+{
+	Color c(0,0,0);
+	for (uint32_t i = 0; i < scene->lights.size(); i++)
+	{
+		c += PhongLightingModel(hitPos, normal, mat, *scene->lights[i]);
+		//c += MicroFacetLightingModel(hitPos, normal, mat, *scene->lights[i]);
+	}
+	return c;
+}
+
+Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
 {
 	// Early exit for normals that point away from current light
 	bool backwardsNormal = normal.Dot(light.pos - hitPos) < 0;
@@ -33,18 +48,26 @@ Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3
 		return ambientColor;
 
 	// Phong lighnting model with energy conservation in specular part
-	Vector3 l = (light.pos - hitPos).Normalize();
-	Vector3 v = (scene->cam.pos - hitPos).Normalize();
-	Vector3 r = Vector3::Reflect(l, normal).Normalize();
+	Vector3 lightDir = (light.pos - hitPos).Normalize();
+	Vector3 viewDir = (scene->cam.pos - hitPos).Normalize();
+	Vector3 reflectDir = Vector3::Reflect(lightDir, normal).Normalize();
 
-	Color diffuseColor = fmaxf(0.0f, l.Dot(normal)) * light.color;
-	Color specularColor = (mat.specularExp + 1) / (2.0f * M_PI) * powf(fmaxf(0.0f, r.Dot(v)), mat.specularExp) * mat.specularColor;
-	Color lightning = ambientColor + diffuseColor;
+	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * light.color;
+	Color specularColor = (mat.specularExp + 1) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), mat.specularExp) * mat.specularColor;
 
-	Color color = mat.diffuseColor;
-	color *= lightning;
-	color += specularColor;
-	return color;
+	return mat.diffuseColor * (ambientColor + diffuseColor) + specularColor;
+}
+
+// TODO
+Color Raytracer::MicroFacetLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
+{
+	// Early exit for normals that point away from current light
+	bool backwardsNormal = normal.Dot(light.pos - hitPos) < 0;
+	if (backwardsNormal || IsInShadow(hitPos, light))
+		return ambientColor;
+
+	// For now return flat diffuse color
+	return mat.diffuseColor * light.color;
 }
 
 // TODO: IsInShadow produces much noise for sphere intersections
@@ -66,8 +89,13 @@ bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 Color Raytracer::Traverse(const Ray& ray)
 {
 	Color color = Color::black;
+	// TODO shift to bottom to avoid unnecessary calculations
+	// Termination criteria
+	if (ray.bounce > maxBounces) 
+		return color;
+
 	Intersection intersection = ComputeFirstRayObjectIntersection(ray);
-	
+	// TODO: Use a skybox
 	// No object was hit, return background color
 	if (intersection.idx < 0)
 		return color;
@@ -76,15 +104,18 @@ Color Raytracer::Traverse(const Ray& ray)
 	// { normal, reflection, refraction }
 	Vector3 hitPos = ray.direction * intersection.distance + ray.origin;
 	Vector3 normal = scene->objects[intersection.idx]->getNormalAt(hitPos);
+	Material mat = scene->objects[intersection.idx]->material;
 
-	// For now only test for one light
-	const Light& light = *scene->lights[0];
-	color = EvaluateLocalLightingModel(hitPos, normal, scene->objects[intersection.idx]->material, light);
+	color = EvaluateLocalLightingModel(hitPos, normal, mat);
 
 	// Pathtracer: Needs additional material property diffuse in recursive call
-	//Material mat;
 	//return color + mat.ks * Traverse(reflect) + mat.kt * Traverse(refract);
-	return color.Clamp();
+	
+	Vector3 reflectDir = -Vector3::Reflect(ray.direction, normal).Normalize();
+	Ray reflectRay = Ray(hitPos, reflectDir, Ray::RAY_SPECULAR, ray.bounce + 1);
+
+
+	return (color + mat.GetKs() * Traverse(reflectRay)).Clamp();
 }
 
 // TODO: Fix render code for non square images
