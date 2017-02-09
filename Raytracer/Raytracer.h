@@ -11,9 +11,6 @@
 #include "Image.h"
 
 #include <iostream>
-#include <math.h>
-#include <string>
-#include <fstream>
 #include <vector>
 #include <time.h>
 
@@ -38,7 +35,7 @@ public:
 	~Raytracer() {}
 
 	Intersection ComputeFirstRayObjectIntersection(const Ray& ray);
-	Color EvaluateLocalLightingModel(const Vector3& normal, const Material& mat, const Light& light);
+	Color EvaluateLocalLightingModel(const Vector3& hitpos, const Vector3& normal, const Material& mat, const Light& light);
 	bool IsInShadow(const Vector3& hitPos, const Light& light);
 	Color Traverse(const Ray& ray);
 	void Render(int width, int height);

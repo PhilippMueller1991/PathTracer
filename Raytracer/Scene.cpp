@@ -8,9 +8,10 @@
 #define RAYTRACER_MAX_BOUNCE 1
 
 // Materials
-const Material matGreen(1, 2, 1, Color::green);
-const Material matRed(2, 1, 1, Color::red);
-const Material matBlue(2, 1, 1, Color::blue);
+// Can't be const because global predefined colors are not initialized to the compile time
+Material matGreen(1, 0, 0, Color::green);
+Material matRed(2, 1, 0, Color::red);
+Material matBlue(5, 1, 0, Color::blue);
 
 int main(int argc, char** argv)
 {

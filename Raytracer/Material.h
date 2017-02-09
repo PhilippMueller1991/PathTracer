@@ -10,11 +10,12 @@ class Material
 {
 public:
 	float ks, kd, kt;
+	float specularExp;
 	Color diffuseColor;
 	Color specularColor;
 
-	Material(float specular = 1.0f, float diffuse = 1.0f, float transmisson = 0.0f, Color diffuseColor = Color(1, 1, 1), Color specularColor = Color(1, 1, 1))
-		: diffuseColor(diffuseColor), specularColor(specularColor)
+	Material(float diffuse = 1.0f, float specular = 0.0f, float transmisson = 0.0f, Color diffuseColor = Color(1, 1, 1), Color specularColor = Color(1, 1, 1), float specularExp = 50.0f)
+		: diffuseColor(diffuseColor), specularColor(specularColor), specularExp(specularExp)
 	{
 		float sum = specular + diffuse + transmisson;
 
