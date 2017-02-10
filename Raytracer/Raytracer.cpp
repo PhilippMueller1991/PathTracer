@@ -50,7 +50,7 @@ Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal
 	// Phong lighnting model with energy conservation in specular part
 	Vector3 lightDir = (light.pos - hitPos).Normalize();
 	Vector3 viewDir = (scene->cam.pos - hitPos).Normalize();
-	Vector3 reflectDir = Vector3::Reflect(lightDir, normal).Normalize();
+	Vector3 reflectDir = Vector3::Reflect(-lightDir, normal);
 
 	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * light.color;
 	Color specularColor = (mat.specularExp + 1) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), mat.specularExp) * mat.specularColor;
@@ -70,11 +70,10 @@ Color Raytracer::MicroFacetLightingModel(const Vector3& hitPos, const Vector3& n
 	return mat.diffuseColor * light.color;
 }
 
-// TODO: IsInShadow produces much noise for sphere intersections
 bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 {
 	Vector3 rayDir = (light.pos - hitPos).Normalize();
-	Ray shadowRay(hitPos, rayDir, Ray::RAY_SHADOW, 1);
+	Ray shadowRay(hitPos, rayDir);
 	Intersection intersection = ComputeFirstRayObjectIntersection(shadowRay);
 
 	// Calculations differs in range 10e-7
@@ -86,39 +85,55 @@ bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 	return true;
 }
 
+// TODO: Use frasnel refraction formular
+// TODO: Fix transmission (probably object leaving wrong)
+// TBD: Do we need the EPS vector offset in transmission?
 Color Raytracer::Traverse(const Ray& ray)
 {
 	Color color = Color::black;
-	// TODO shift to bottom to avoid unnecessary calculations
+
 	// Termination criteria
 	if (ray.bounce > maxBounces) 
 		return color;
 
 	Intersection intersection = ComputeFirstRayObjectIntersection(ray);
-	// TODO: Use a skybox
 	// No object was hit, return background color
 	if (intersection.idx < 0)
 		return color;
 
-	// Pathtracer: Randomly choose one of the following rays: 
-	// { normal, reflection, refraction }
 	Vector3 hitPos = ray.direction * intersection.distance + ray.origin;
 	Vector3 normal = scene->objects[intersection.idx]->getNormalAt(hitPos);
 	Material mat = scene->objects[intersection.idx]->material;
 
 	color = EvaluateLocalLightingModel(hitPos, normal, mat);
 
-	// Pathtracer: Needs additional material property diffuse in recursive call
-	//return color + mat.ks * Traverse(reflect) + mat.kt * Traverse(refract);
-	
-	Vector3 reflectDir = -Vector3::Reflect(ray.direction, normal).Normalize();
-	Ray reflectRay = Ray(hitPos, reflectDir, Ray::RAY_SPECULAR, ray.bounce + 1);
+	// Reflection
+	Color reflectionColor;
+	Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
+	Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
+	if(mat.GetKs() > 0)
+		reflectionColor = mat.GetKs() * Traverse(reflectRay);
 
+	// Transmission / Refraction
+	Color transmissionColor;
+	if (mat.GetKt() > 0)
+	{
+		bool leavingObject = normal.Dot(ray.direction) > 0;
+		float n1 = leavingObject ? mat.refractiveIndex : 1.0f;
+		float n2 = leavingObject ? 1.0f : mat.refractiveIndex;
+		Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, n1, n2);
+		if (transmissionDir != Vector3::invalid)
+		{
+			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1);
+			transmissionColor = mat.GetKt() * Traverse(transmissionRay);
+		}
+	}
 
-	return (color + mat.GetKs() * Traverse(reflectRay)).Clamp();
+	return (color + reflectionColor + transmissionColor).Clamp();
 }
 
-// TODO: Fix render code for non square images
+// TODO: Fix render code for non square images, Accomodate for aspectRatio
+// TODO: Shoot multiple rays with random jitter (later Sobol jitter, or Multi-Jittered) for AA
 void Raytracer::Render(int width, int height)
 {
 	Camera& cam = scene->cam;
@@ -129,8 +144,6 @@ void Raytracer::Render(int width, int height)
 		for (int x = 0; x < img.width; x++)
 		{
 			int idx = y * img.width + x;
-			// TODO: Accomodate for aspectRatio
-			// TODO: Shoot multiple rays with random jitter (later Sobol jitter, or Multi-Jittered) for AA
 			Color color;
 			Ray camRay(cam.pos, cam.PixelToRayDir(x, y));
 			color += Traverse(camRay);

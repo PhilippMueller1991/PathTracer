@@ -9,15 +9,30 @@ class Vector3
 public:
 	float x, y, z;
 
+	static const Vector3 invalid;
 	static const Vector3 right;
 	static const Vector3 up;
 	static const Vector3 forward;
 
-	Vector3() {}
-	Vector3(float a, float b, float c) : x(a), y(b), z(c) {}
+	Vector3() 
+		: x(0), y(0), z(0) 
+	{
+	}
+	Vector3(float a, float b, float c) 
+		: x(a), y(b), z(c) 
+	{
+	}
 	~Vector3() {}
 
 	// Operator overload
+	bool operator==(const Vector3& rhs)
+	{
+		return x == rhs.x && y == rhs.y && z == rhs.z;
+	}
+	bool operator!=(const Vector3& rhs)
+	{
+		return !(*this == rhs);
+	}
 	Vector3 operator+(const Vector3& rhs) const
 	{
 		return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);
@@ -82,5 +97,7 @@ public:
 	Vector3 Cross(const Vector3& b) const;
 	Vector3 Normalize() const;
 	
-	static Vector3 Reflect(Vector3 v, Vector3 n);
+	static Vector3 Reflect(const Vector3& incident, const Vector3& normal);
+	static Vector3 Refract(const Vector3& incident, const Vector3& normal, float n1, float n2);
+	static float fresnelReflectance(const Vector3& incident, const Vector3& normal, float n1, float n2);
 };

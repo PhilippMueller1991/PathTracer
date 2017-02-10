@@ -8,9 +8,6 @@ Vector3 Sphere::getNormalAt(Vector3 pos)
 
 float Sphere::findIntersection(Ray ray) 
 {
-	// TBD: Renormalization necessary?
-	ray.direction = ray.direction.Normalize();
-
 	// Check if alternative calculation can be corrected for fewer calculations
 	Vector3 delta = ray.origin - pos;
 	float b = 2.0f * (ray.direction.Dot(delta));
