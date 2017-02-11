@@ -38,7 +38,7 @@ int main(int argc, char** argv)
 	Material matBlue(5, 1, 0, Color::blue);
 	Material matYellow(2, 2, 0, Color::yellow);
 	Material matOrange(1, 5, 0, Color::orange);
-	Material matGlass(0.2f, 0, 1, Color::white, Color::white, 10.0f, 1.1f);
+	Material matGlass(0.2f, 0, 1, Color::white, Color::white, 10.0f, 1.2f);
 
 	// Scene objects
 	// Build box

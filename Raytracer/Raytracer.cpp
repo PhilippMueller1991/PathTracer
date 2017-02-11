@@ -86,9 +86,10 @@ bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 	return true;
 }
 
+// TODO: Transfer to Pathtracer
 // TODO: Use frasnel refraction formular
-// TODO: Fix transmission (probably object leaving wrong)
-// TBD: Do we need the EPS vector offset in transmission?
+// TODO: Fix transmission
+// Can be optimized, color += instead of allocation new colors for reflectio, transmission etc
 Color Raytracer::Traverse(const Ray& ray)
 {
 	Color color = Color::black;
@@ -108,12 +109,16 @@ Color Raytracer::Traverse(const Ray& ray)
 
 	color = EvaluateLocalLightingModel(hitPos, normal, mat);
 
+	//Ray::RayType rayType = mat.chooseRandomRayType();
+	
 	// Reflection
 	Color reflectionColor;
-	Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
-	Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
-	if(mat.GetKs() > 0)
+	if (mat.GetKs() > 0) 
+	{
+		Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
+		Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
 		reflectionColor = mat.GetKs() * Traverse(reflectRay);
+	}
 
 	// Transmission / Refraction
 	Color transmissionColor;
@@ -123,18 +128,26 @@ Color Raytracer::Traverse(const Ray& ray)
 		float n1 = leavingObject ? mat.refractiveIndex : 1.0f;
 		float n2 = leavingObject ? 1.0f : mat.refractiveIndex;
 		Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, n1, n2);
+		// TIR
 		if (transmissionDir != Vector3::invalid)
 		{
+			// TBD: Do we need the EPS vector offset in transmission?
 			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1);
 			transmissionColor = mat.GetKt() * Traverse(transmissionRay);
+		} 
+		else
+		{
+			Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
+			Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
+			transmissionColor = mat.GetKs() * Traverse(reflectRay);
 		}
 	}
 
 	return (color + reflectionColor + transmissionColor).Clamp();
 }
 
-// TODO: Fix render code for non square images, Accomodate for aspectRatio
-// TODO: Shoot multiple rays with random jitter (later Sobol jitter, or Multi-Jittered) for AA
+// TODO: Fix render code for vertical images
+// TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, or Multi-Jittered)
 void Raytracer::Render(int width, int height)
 {
 	Camera& cam = scene->cam;
