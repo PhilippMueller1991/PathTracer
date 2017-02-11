@@ -40,11 +40,12 @@ Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3
 	return c;
 }
 
+// TODO: Fix shadows for transparent objects
 Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
 {
 	// Early exit for normals that point away from current light
-	bool backwardsNormal = normal.Dot(light.pos - hitPos) < 0;
-	if (backwardsNormal || IsInShadow(hitPos, light))
+	const bool backwardsNormal = normal.Dot(light.pos - hitPos) < 0;
+	if (backwardsNormal || (mat.GetKt() < EPS && IsInShadow(hitPos, light)))
 		return ambientColor;
 
 	// Phong lighnting model with energy conservation in specular part
@@ -139,6 +140,8 @@ void Raytracer::Render(int width, int height)
 	Camera& cam = scene->cam;
 	Image img(width, height);
 	RGB* pixels = img.data;
+
+	int progress = 0;
 	for (int y = 0; y < img.height; y++)
 	{
 		for (int x = 0; x < img.width; x++)
@@ -157,6 +160,13 @@ void Raytracer::Render(int width, int height)
 			}
 			color /= samplesPerPixel;
 			img.SetPixel(idx, color);
+		}
+
+		int nextProgress = (int)(100.0f * y / (float)img.height);
+		if (nextProgress > progress)
+		{
+			progress = nextProgress;
+			std::cout << "Progress: " << progress << "%" << std::endl;
 		}
 	}
 

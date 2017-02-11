@@ -12,7 +12,6 @@
 int main(int argc, char** argv)
 {
 	std::cout << "Rendering scene..." << std::endl;
-	//######################### INITIALIZATION #########################//
 	// Random number generator
 	srand(static_cast<unsigned>(time(0)));
 
@@ -34,12 +33,12 @@ int main(int argc, char** argv)
 	Material matDiffuseGreen(1, 0, 0, Color::green);
 	Material matDiffuseRed(1, 0, 0, Color::red);
 	Material matDiffuseBlue(1, 0, 0, Color::blue);
-	Material matMirror(0, 5, 0, Color::red, Color::white, 4.0f);
+	Material matMirror(0, 5, 0, Color::red, Color::white, 80.0f);
 	Material matRed(3, 1, 0, Color::red);
 	Material matBlue(5, 1, 0, Color::blue);
 	Material matYellow(2, 2, 0, Color::yellow);
 	Material matOrange(1, 5, 0, Color::orange);
-	Material matGlass(0, 0, 1, Color::white, Color::white, 10.0f, 1.5f);
+	Material matGlass(0.2f, 0, 1, Color::white, Color::white, 10.0f, 1.1f);
 
 	// Scene objects
 	// Build box
@@ -48,9 +47,10 @@ int main(int argc, char** argv)
 	scene.objects.push_back(new Plane(Vector3(0, 1, 0), Vector3(0, -1, 0), matDiffuseGray));
 	scene.objects.push_back(new Plane(Vector3(0, -1, 0), Vector3(0, 1, 0), matDiffuseGray));
 	scene.objects.push_back(new Plane(Vector3(0, 0, 1), Vector3(0, 0, -1), matDiffuseGray));
+	scene.objects.push_back(new Plane(Vector3(0, 0, -5), Vector3(0, 0, 1), matDiffuseGray));
 	// Fill box
 	scene.objects.push_back(new Sphere(Vector3(-0.5f, -0.5f, 0.5f), 0.5f, matMirror));
-	scene.objects.push_back(new Sphere(Vector3(0.5f, -0.5f, -0.5f), 0.5f, matGlass));
+	scene.objects.push_back(new Sphere(Vector3(0.6f, -0.5f, -0.5f), 0.5f, matGlass));
 
 	// Raytracer
 	Raytracer rt;
