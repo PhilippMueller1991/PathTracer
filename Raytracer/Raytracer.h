@@ -14,6 +14,13 @@
 #include <vector>
 #include <time.h>
 
+#ifndef _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
+#endif // !_USE_MATH_DEFINES
+#include <math.h>
+
+#define PI static_cast<float>(M_PI)
+
 class Raytracer
 {
 public:
@@ -29,9 +36,8 @@ public:
 	static int samplesPerPixel;
 	Scene* scene;
 
-	Raytracer() 
+	Raytracer(Scene* scene) : scene(scene)
 	{
-
 	}
 	~Raytracer() {}
 

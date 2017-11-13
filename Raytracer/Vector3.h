@@ -4,22 +4,21 @@
 
 #define EPS 0.001f
 
+// TODO: refactor float Vector3.Dot(Vector3) ==> static float Dot(Vector3, Vector3)
+//		 same for Vector3.Cross(...)
+
+// Left handed coordinate system
 class Vector3
 {
 public:
 	float x, y, z;
 
-	static const Vector3 invalid;
-	static const Vector3 right;
-	static const Vector3 up;
-	static const Vector3 forward;
-
-	Vector3() 
-		: x(0), y(0), z(0) 
+	Vector3()
+		: x(0), y(0), z(0)
 	{
 	}
-	Vector3(float a, float b, float c) 
-		: x(a), y(b), z(c) 
+	Vector3(float a, float b, float c)
+		: x(a), y(b), z(c)
 	{
 	}
 	~Vector3() {}
@@ -93,11 +92,18 @@ public:
 
 	// Auxiliary methods
 	float Magnitude() const;
+	float MagnitudeSqr() const;
 	float Dot(const Vector3& b) const;
 	Vector3 Cross(const Vector3& b) const;
 	Vector3 Normalize() const;
 	
 	static Vector3 Reflect(const Vector3& incident, const Vector3& normal);
 	static Vector3 Refract(const Vector3& incident, const Vector3& normal, float n1, float n2);
-	static float fresnelReflectance(const Vector3& incident, const Vector3& normal, float n1, float n2);
+	static float FresnelReflectance(const Vector3& incident, const Vector3& normal, float n1, float n2);
+
+	// Predefined vectors
+	static const Vector3 invalid;
+	static const Vector3 right;
+	static const Vector3 up;
+	static const Vector3 forward;
 };

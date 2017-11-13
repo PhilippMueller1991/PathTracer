@@ -1,17 +1,10 @@
 #include "Raytracer.h"
 
-#ifndef _USE_MATH_DEFINES
-#define _USE_MATH_DEFINES
-#endif // !_USE_MATH_DEFINES
-#include <math.h>
-
-#define PI static_cast<float>(M_PI)
-
 int Raytracer::maxBounces;
 int Raytracer::samplesPerPixel;
 
-const float ambientIntensity = 0.0f;
-const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 1);
+const float ambientIntensity = 0.2f;
+const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 0.5f);
 
 Raytracer::Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
 {
@@ -59,7 +52,7 @@ Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal
 	return mat.diffuseColor * (ambientColor + diffuseColor) + specularColor;
 }
 
-// TODO
+// TODO: Implement micro facet lightning model
 Color Raytracer::MicroFacetLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
 {
 	// Early exit for normals that point away from current light
@@ -77,7 +70,7 @@ bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 	Ray shadowRay(hitPos, rayDir);
 	Intersection intersection = ComputeFirstRayObjectIntersection(shadowRay);
 
-	// Calculations differs in range 10e-7
+	// Calculations differs in range 10e-7 from uncommented calculation
 	float lightDistance = (light.pos - hitPos).Dot(rayDir);	//(light.pos - hitPos).Magnitude();
 
 	if (intersection.idx < 0 || intersection.distance > lightDistance)
@@ -89,7 +82,7 @@ bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 // TODO: Transfer to Pathtracer
 // TODO: Use frasnel refraction formular
 // TODO: Fix transmission
-// Can be optimized, color += instead of allocation new colors for reflectio, transmission etc
+// OPTIONAL: Can be optimized, color += instead of allocation new colors for reflection, transmission etc
 Color Raytracer::Traverse(const Ray& ray)
 {
 	Color color = Color::black;
@@ -127,19 +120,21 @@ Color Raytracer::Traverse(const Ray& ray)
 		bool leavingObject = normal.Dot(ray.direction) > 0;
 		float n1 = leavingObject ? mat.refractiveIndex : 1.0f;
 		float n2 = leavingObject ? 1.0f : mat.refractiveIndex;
-		Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, n1, n2);
-		// TIR
-		if (transmissionDir != Vector3::invalid)
+		// Total Internal Refelction (TIR)
+		float R = Vector3::FresnelReflectance(ray.direction, normal, n1, n2);	// Reflection
+		float T = 1.0f - R;	// Transmission 
+		if (T > EPS)
 		{
 			// TBD: Do we need the EPS vector offset in transmission?
+			Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, n1, n2);
 			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1);
-			transmissionColor = mat.GetKt() * Traverse(transmissionRay);
+			transmissionColor += T * mat.GetKt() * Traverse(transmissionRay);
 		} 
-		else
+		if(R > EPS)
 		{
 			Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
 			Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
-			transmissionColor = mat.GetKs() * Traverse(reflectRay);
+			transmissionColor += R * mat.GetKs() * Traverse(reflectRay);
 		}
 	}
 
@@ -147,7 +142,7 @@ Color Raytracer::Traverse(const Ray& ray)
 }
 
 // TODO: Fix render code for vertical images
-// TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, or Multi-Jittered)
+// OPTIONAL TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, or Multi-Jittered)
 void Raytracer::Render(int width, int height)
 {
 	Camera& cam = scene->cam;
@@ -171,7 +166,7 @@ void Raytracer::Render(int width, int height)
 				camRay = Ray(cam.pos, cam.PixelToRayDir(x, y, xOffset, yOffset));
 				color += Traverse(camRay);
 			}
-			color /= samplesPerPixel;
+			color /= static_cast<float>(samplesPerPixel);
 			img.SetPixel(idx, color);
 		}
 

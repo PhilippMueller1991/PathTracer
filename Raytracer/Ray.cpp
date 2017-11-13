@@ -36,7 +36,7 @@ Vector3 Ray::chooseRandomDirection(Ray::RayType rayType, Vector3 n)
 Vector3 Ray::UniformSampleHemisphere(float u1, float u2)
 {
     const float r = sqrtf(1.0f - u1 * u1);
-    const float phi = 2 * std::_Pi * u2;
+    const float phi = 2 * static_cast<float>(M_PI) * u2;
  
     return Vector3(cosf(phi) * r, sinf(phi) * r, u1);
 }
@@ -44,7 +44,7 @@ Vector3 Ray::UniformSampleHemisphere(float u1, float u2)
 Vector3 Ray::CosineSampleHemisphere(float u1, float u2)
 {
 	const float r = sqrtf(u1);
-	const float phi = 2 * M_PI * u2;
+	const float phi = 2 * static_cast<float>(M_PI) * u2;
 
 	return Vector3(cosf(phi) * r, sinf(phi) * r, sqrtf(std::fmax(0.0f, 1.0f - u1)));
 }

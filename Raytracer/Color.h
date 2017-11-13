@@ -13,7 +13,7 @@ public:
 	~Color() {}
 
 	// Operation overload
-	Color operator+(const Color& rhs) const 
+	Color operator+(const Color& rhs) const
 	{
 		return Color(r + rhs.r, g + rhs.g, b + rhs.b);
 	}
@@ -31,7 +31,7 @@ public:
 		g *= rhs;
 		b *= rhs;
 	}
-	friend Color operator*(float lhs, const Color& rhs) 
+	friend Color operator*(float lhs, const Color& rhs)
 	{
 		return Color(lhs * rhs.r, lhs * rhs.g, lhs * rhs.b);
 	}
@@ -66,7 +66,7 @@ public:
 		return os;
 	}
 
-	Color Clamp();
+	Color Clamp() const;
 	static inline float Clamp(const float lo, const float hi, const float v);
 
 	// Predefined colors

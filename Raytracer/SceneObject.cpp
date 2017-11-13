@@ -1,3 +1,1 @@
 #include "SceneObject.h"
-
-// TODO

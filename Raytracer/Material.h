@@ -6,6 +6,7 @@
 
 #include <assert.h>
 
+// TODO: Texture
 class Material
 {
 private:
@@ -27,8 +28,8 @@ public:
 		float sum = specular + diffuse + transmisson;
 		assert(sum != 0);
 
-		ks = specular / sum;
 		kd = diffuse / sum;
+		ks = specular / sum;
 		kt = transmisson / sum;
 
 		this->diffuseColor = kd * diffuseColor;

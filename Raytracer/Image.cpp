@@ -71,9 +71,9 @@ void Image::SaveBitmap(std::string filename)
 	for (int i = 0; i < numPixels; i++)
 	{
 		RGB pixel = data[i];
-		int red = static_cast<int>(pixel.r * 255.0f);
-		int green = static_cast<int>(pixel.g * 255.0f);
-		int blue = static_cast<int>(pixel.b * 255.0f);
+		unsigned char red   = static_cast<unsigned char>(pixel.r * 255.0f);
+		unsigned char green = static_cast<unsigned char>(pixel.g * 255.0f);
+		unsigned char blue  = static_cast<unsigned char>(pixel.b * 255.0f);
 
 		unsigned char color[3] = { blue, green, red };	// Uses actually BGR
 		fwrite(color, sizeof(unsigned char), 3, imageFile);

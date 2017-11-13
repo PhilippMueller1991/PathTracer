@@ -3,7 +3,7 @@
 #include "Vector3.h"
 #include "Color.h"
 
-// For now only directional light
+// For now only point light
 class Light
 {
 public:

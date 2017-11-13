@@ -9,10 +9,8 @@ const Color Color::blue = Color(0, 0, 1);
 const Color Color::yellow = Color(1, 1, 0);
 const Color Color::orange = Color(1, 0.5f, 0);
 
-Color Color::Clamp()
+Color Color::Clamp() const
 {
-	//float sum = r + g + b;
-	//return *this / sum;
 	return Color(Clamp(0.0f, 1.0f, r), Clamp(0.0f, 1.0f, g), Clamp(0.0f, 1.0f, b));
 }
 
