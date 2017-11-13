@@ -1,0 +1,38 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# On branch master
+# Your branch is up-to-date with 'origin/master'.
+#
+# Changes to be committed:
+#	modified:   Raytracer/Color.cpp
+#	modified:   Raytracer/Color.h
+#	modified:   Raytracer/Image.cpp
+#	modified:   Raytracer/Light.h
+#	modified:   Raytracer/Material.h
+#	modified:   Raytracer/Plane.cpp
+#	modified:   Raytracer/Plane.h
+#	modified:   Raytracer/Ray.cpp
+#	modified:   Raytracer/Raytracer.cpp
+#	modified:   Raytracer/Raytracer.h
+#	modified:   Raytracer/Raytracer.vcxproj
+#	modified:   Raytracer/Raytracer.vcxproj.filters
+#	modified:   Raytracer/Scene.cpp
+#	modified:   Raytracer/SceneObject.cpp
+#	modified:   Raytracer/SceneObject.h
+#	modified:   Raytracer/Sphere.cpp
+#	modified:   Raytracer/Sphere.h
+#	modified:   Raytracer/Vector3.cpp
+#	modified:   Raytracer/Vector3.h
+#	modified:   scene.bmp
+#
+# Untracked files:
+#	Raytracer/Matrix3x3.cpp
+#	Raytracer/Matrix3x3.h
+#	Raytracer/Rotation.cpp
+#	Raytracer/Rotation.h
+#	Raytracer/Transform.cpp
+#	Raytracer/Transform.h
+#
+
