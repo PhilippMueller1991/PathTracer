@@ -13,3 +13,20 @@ Ray::RayType Material::chooseRandomRayType()
 
 	return Ray::RayType::RAY_TRANSMISSION;
 }
+
+// UV values are in range(0,1)
+Color Material::GetColorAt(float u, float v) const
+{
+	if (texture == nullptr)
+		return diffuseColor;
+
+	return texture->GetColorAt(u, v);
+}
+
+Color Material::GetColorAt(Vector3 pos) const
+{
+	if (texture == nullptr)
+		return diffuseColor;
+
+	return texture->GetColorAt(pos);
+}

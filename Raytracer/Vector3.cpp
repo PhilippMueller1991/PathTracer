@@ -2,6 +2,7 @@
 #include <math.h>
 
 // Left handed coordinate system
+// Define static const values
 const Vector3 Vector3::invalid = Vector3(FLT_MAX, FLT_MAX, FLT_MAX);
 const Vector3 Vector3::right = Vector3(1, 0, 0);
 const Vector3 Vector3::up = Vector3(0, 1, 0);
@@ -40,34 +41,38 @@ Vector3 Vector3::Reflect(const Vector3& incident, const Vector3& normal)
 	return incident - 2.0f * (incident.Dot(normal))*normal;
 }
 
+// Calculates the exitence vector based on incident and normal vector 
+// as well as materials n1, n2 index of refraction
 Vector3 Vector3::Refract(const Vector3& incident, const Vector3& normal, float n1, float n2)
 {
-	const float n = n1 / n2;
-	const float cosI = -incident.Dot(normal);
-	const float sinT2 = n * n * (1.0f - cosI * cosI);
+	float n = n1 / n2;
+	float cosI = -incident.Dot(normal);
+	float sinT2 = n * n * (1.0f - cosI * cosI);
 
 	// Total internal refraction
 	if (sinT2 > 1.0f)
 		return Vector3::invalid;
 
-	const float cosT = sqrtf(1.0f - sinT2);
+	float cosT = sqrtf(1.0f - sinT2);
 	
 	return n * incident + (n * cosI - cosT) * normal;
 }
 
+// Calculates the relation of reflectance vs refraction based on
+// incident and normal vector as well as materials n1, n2 index of refraction
 float Vector3::FresnelReflectance(const Vector3& incident, const Vector3& normal, float n1, float n2)
 {
-	const float n = n1 / n2;
-	const float cosI = -incident.Dot(normal);
-	const float sinT2 = n * n * (1.0f - cosI * cosI);
+	float n = n1 / n2;
+	float cosI = -incident.Dot(normal);
+	float sinT2 = n * n * (1.0f - cosI * cosI);
 
 	// Total internal refraction
 	if (sinT2 > 1.0f)
 		return 1.0f;
 
-	const float cosT = sqrtf(1.0f - sinT2);
-	const float rOrthogonal = (n1 * cosI - n2 * cosT) / (n1 * cosI + n2 * cosT);
-	const float rParallel = (n2 * cosI - n1 * cosT) / (n2 * cosI + n1 * cosT);
+	float cosT = sqrtf(1.0f - sinT2);
+	float rOrthogonal = (n1 * cosI - n2 * cosT) / (n1 * cosI + n2 * cosT);
+	float rParallel = (n2 * cosI - n1 * cosT) / (n2 * cosI + n1 * cosT);
 
 	return (rOrthogonal * rOrthogonal + rParallel * rParallel) / 2.0f;
 }

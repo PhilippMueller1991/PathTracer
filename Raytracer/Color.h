@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-// TODO: Rewrite such that r,g,b are discrete (Should be better for performance)
+// TODO: 
+// Rewrite such that r,g,b are discrete (Should be better for performance)
 class Color
 {
 public:

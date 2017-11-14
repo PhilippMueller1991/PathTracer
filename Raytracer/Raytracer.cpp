@@ -5,8 +5,9 @@ int Raytracer::samplesPerPixel;
 
 const float ambientIntensity = 0.2f;
 const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 0.5f);
+const float specularExp = 50.0f;
 
-Raytracer::Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
+Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
 {
 	Intersection nearestIntersection(-1, FLT_MAX);
 	for (uint32_t i = 0; i < scene->objects.size(); i++)
@@ -33,6 +34,7 @@ Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3
 	return c;
 }
 
+// TODO: Use textures
 // TODO: Fix shadows for transparent objects
 Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
 {
@@ -47,7 +49,7 @@ Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal
 	Vector3 reflectDir = Vector3::Reflect(-lightDir, normal);
 
 	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * light.color;
-	Color specularColor = (mat.specularExp + 1) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), mat.specularExp) * mat.specularColor;
+	Color specularColor = (specularExp + 1.0f) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), specularExp) * mat.specularColor;
 
 	return mat.diffuseColor * (ambientColor + diffuseColor) + specularColor;
 }
@@ -70,19 +72,14 @@ bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 	Ray shadowRay(hitPos, rayDir);
 	Intersection intersection = ComputeFirstRayObjectIntersection(shadowRay);
 
-	// Calculations differs in range 10e-7 from uncommented calculation
+	// Commented out calculations differs in range 10e-7
 	float lightDistance = (light.pos - hitPos).Dot(rayDir);	//(light.pos - hitPos).Magnitude();
 
-	if (intersection.idx < 0 || intersection.distance > lightDistance)
-		return false;
-
-	return true;
+	// Test if anything blocks the light
+	return intersection.idx != 0 && intersection.distance < lightDistance;
 }
 
-// TODO: Transfer to Pathtracer
-// TODO: Use frasnel refraction formular
-// TODO: Fix transmission
-// OPTIONAL: Can be optimized, color += instead of allocation new colors for reflection, transmission etc
+// TODO: Fix transmission / refraction: Can be done by saving last material in ray data
 Color Raytracer::Traverse(const Ray& ray)
 {
 	Color color = Color::black;
@@ -102,8 +99,6 @@ Color Raytracer::Traverse(const Ray& ray)
 
 	color = EvaluateLocalLightingModel(hitPos, normal, mat);
 
-	//Ray::RayType rayType = mat.chooseRandomRayType();
-	
 	// Reflection
 	Color reflectionColor;
 	if (mat.GetKs() > 0) 
@@ -121,8 +116,8 @@ Color Raytracer::Traverse(const Ray& ray)
 		float n1 = leavingObject ? mat.refractiveIndex : 1.0f;
 		float n2 = leavingObject ? 1.0f : mat.refractiveIndex;
 		// Total Internal Refelction (TIR)
-		float R = Vector3::FresnelReflectance(ray.direction, normal, n1, n2);	// Reflection
-		float T = 1.0f - R;	// Transmission 
+		float R = Vector3::FresnelReflectance(ray.direction, normal, n1, n2);	// Reflection percentage
+		float T = 1.0f - R;	// Transmission percentage
 		if (T > EPS)
 		{
 			// TBD: Do we need the EPS vector offset in transmission?
@@ -141,8 +136,8 @@ Color Raytracer::Traverse(const Ray& ray)
 	return (color + reflectionColor + transmissionColor).Clamp();
 }
 
-// TODO: Fix render code for vertical images
-// OPTIONAL TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, or Multi-Jittered)
+// TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, or Multi-Jittered)
+// TODO: Use space partitioning for faster raytracing (ray-object intersection)
 void Raytracer::Render(int width, int height)
 {
 	Camera& cam = scene->cam;
@@ -150,6 +145,7 @@ void Raytracer::Render(int width, int height)
 	RGB* pixels = img.data;
 
 	int progress = 0;
+	// Render scene to image
 	for (int y = 0; y < img.height; y++)
 	{
 		for (int x = 0; x < img.width; x++)
@@ -161,15 +157,18 @@ void Raytracer::Render(int width, int height)
 			float xOffset, yOffset;	// Must be in range(-0.5,0.5)
 			for (int s = 1; s < samplesPerPixel; s++)
 			{
+				// Simple random sampling, better sampling methods achieve better results 
 				xOffset = (float)rand() / (float)RAND_MAX - 0.5f;
 				yOffset = (float)rand() / (float)RAND_MAX - 0.5f;
 				camRay = Ray(cam.pos, cam.PixelToRayDir(x, y, xOffset, yOffset));
 				color += Traverse(camRay);
 			}
+			// Normalize color and set pixel in image
 			color /= static_cast<float>(samplesPerPixel);
 			img.SetPixel(idx, color);
 		}
 
+		// Print progress in percent to console
 		int nextProgress = (int)(100.0f * y / (float)img.height);
 		if (nextProgress > progress)
 		{

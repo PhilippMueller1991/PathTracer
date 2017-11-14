@@ -19,8 +19,8 @@ float Plane::findIntersection(Ray ray)
 	
 	const float d = enumerator / denominator;
 	const Vector3 hitPos = ray.origin + ray.direction * d;
-	const Vector3 xDir = transform.rot * Vector3::right;	//normal.Cross(Vector3::up);
-	const Vector3 yDir = transform.rot * Vector3::up;	//xDir.Cross(normal);
+	const Vector3 xDir = transform.rot * Vector3::right;
+	const Vector3 yDir = transform.rot * Vector3::up;
 	const float xDistance = hitPos.Dot(xDir);
 	const float yDistance = hitPos.Dot(yDir);
 

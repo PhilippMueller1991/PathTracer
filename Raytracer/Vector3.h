@@ -4,8 +4,6 @@
 
 #define EPS 0.001f
 
-// TODO: refactor float Vector3.Dot(Vector3) ==> static float Dot(Vector3, Vector3)
-//		 same for Vector3.Cross(...)
 
 // Left handed coordinate system
 class Vector3

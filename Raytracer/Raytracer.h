@@ -3,11 +3,11 @@
 #include "Vector3.h"
 #include "Camera.h"
 #include "Ray.h"
+#include "Intersection.h"
 #include "Light.h"
 #include "Sphere.h"
 #include "Plane.h"
 #include "Scene.h"
-
 #include "Image.h"
 
 #include <iostream>
@@ -24,14 +24,6 @@
 class Raytracer
 {
 public:
-	struct Intersection
-	{
-		int idx;
-		float distance;
-
-		Intersection(int idx, float distance) : idx(idx), distance(distance) {}
-	};
-
 	static int maxBounces;
 	static int samplesPerPixel;
 	Scene* scene;
