@@ -2,7 +2,6 @@
 
 #include "SceneObject.h"
 
-// TODO: Set normal from rotation
 class Plane : public SceneObject
 {
 protected:

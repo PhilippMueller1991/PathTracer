@@ -11,17 +11,18 @@ public:
 	Vector3 origin, direction;
 	int bounce;
 	float refractionIndex;
+	float lastRefractionIdx;
 
-	Ray() 
-		: origin(Vector3(0, 0, 0)), direction(Vector3(1, 0, 0)), refractionIndex(1.0f) 
+	Ray()
+		: origin(Vector3(0, 0, 0)), direction(Vector3(1, 0, 0)), refractionIndex(1.0f), lastRefractionIdx(1.0f)
 	{
 	}
 	Ray(Vector3 origin, Vector3 direction) 
-		: origin(origin), direction(direction), bounce(1), refractionIndex(1.0f) 
+		: origin(origin), direction(direction), bounce(1), refractionIndex(1.0f), lastRefractionIdx(1.0f)
 	{
 	}
 	Ray(Vector3 origin, Vector3 direction, int bounce, float refractionIndex = 1.0f)
-		: origin(origin), direction(direction), bounce(bounce), refractionIndex(refractionIndex)
+		: origin(origin), direction(direction), bounce(bounce), refractionIndex(refractionIndex), lastRefractionIdx(1.0f)
 	{
 	}
 	~Ray() {}

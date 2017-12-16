@@ -2,12 +2,13 @@
 #include "Raytracer.h"
 
 #define IMAGE_DPI 72
-#define IMAGE_WIDTH 800
-#define IMAGE_HEIGHT 450
+#define IMAGE_WIDTH 800 //1600
+#define IMAGE_HEIGHT 450 //900
 
-#define RAYTRACER_MAX_BOUNCE 6
-#define RAYTRACER_SAMPLES_PER_PIXEL 1
+#define RAYTRACER_MAX_BOUNCE 8
+#define RAYTRACER_SAMPLES_PER_PIXEL 10
 
+// Four spheres with high reflactence
 void CreateDebugScene0(Scene* scene)
 {
 	// Materials
@@ -27,6 +28,7 @@ void CreateDebugScene0(Scene* scene)
 	scene->lights.push_back(new Light(Vector3(0, 0, -3), Color::white, 1.0f));
 }
 
+// Plane scene
 void CreateDebugScene1(Scene* scene)
 {
 	// Materials
@@ -73,22 +75,24 @@ void CreateDebugScene1(Scene* scene)
 	scene->lights.push_back(new Light(Vector3(1, 1, -3), Color::white, 1.2f));
 }
 
+// Box scene
 void CreateDebugScene2(Scene* scene)
 {
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
-	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, &Texture(Texture::CHESS_BOARD, 0.5f));
+	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f, &Texture(Texture::CHESS_BOARD, 0.5f));
 	Material matDiffuseRed(1, 0, 0, Color::red);
 	Material matDiffuseBlue(1, 0, 0, Color::blue);
 	Material matDiffuseGreen(1, 0, 0, Color::green);
-	Material matMirror(0, 1, 0, Color::red, Color::white, 80.0f);
-	Material matGlass(0, 0, 1, Color::white, Color::white, 1.7f);
+	Material matMirror(0, 1, 0, Color::red, Color::white, 1.0f, 0.8f);
+	Material matMilkyMirror(2, 1, 0, Color::white, Color::white, 80.0f);
+	Material matGlass(0, 0, 1, Color::white, Color::orange, 1.7f);
 
 	// Scene objects
 	const float c = 1.5f;
 	const Vector3 scale(3, 3, 3);
 	// Build box
-	scene->objects.push_back(new Plane(Vector3(0, -1, 0), Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(Vector3(0, -1, 0),	  Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
 	scene->objects.push_back(new Plane(c * Vector3(0, 1, 0),  Rotation::EulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
 	scene->objects.push_back(new Plane(c * Vector3(-1, 0, 0), Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
 	scene->objects.push_back(new Plane(c * Vector3(1, 0, 0),  Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
@@ -104,7 +108,7 @@ void CreateDebugScene2(Scene* scene)
 int main(int argc, char** argv)
 {
 	std::cout << "Rendering scene..." << std::endl;
-	// Random number generator
+	// Seed random number generator with current time
 	srand(static_cast<unsigned>(time(0)));
 
 	// Camera
@@ -117,7 +121,7 @@ int main(int argc, char** argv)
 	Scene scene = Scene(cam);
 
 	// Fill scene
-	//CreateDebugScene0(&scene);	// Four spheres with high relfectance
+	//CreateDebugScene0(&scene);	// Four spheres with high reflectance
 	//CreateDebugScene1(&scene);	// Plane scene
 	CreateDebugScene2(&scene);	// Box scene
 
@@ -126,7 +130,7 @@ int main(int argc, char** argv)
 	Raytracer::samplesPerPixel = RAYTRACER_SAMPLES_PER_PIXEL;
 	Raytracer::maxBounces = RAYTRACER_MAX_BOUNCE;
 
-	//######################### RENDER RAYTRACED IMAGE #########################//
+	// Render raytraced image
 	rt.Render(IMAGE_WIDTH, IMAGE_HEIGHT);
 
 	// Cleanup

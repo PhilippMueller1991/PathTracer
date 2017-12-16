@@ -13,6 +13,7 @@ public:
 	Color diffuseColor;
 	Color specularColor;
 	float refractiveIndex;
+	float glossiness;
 	Texture* texture;
 
 private:
@@ -22,9 +23,9 @@ public:
 	// Rather use mapping than enum
 	//static const enum RefractionIndexType { REFRACTION_INDEX_GLASS, REFRACTION_INDEX_WATER, REFRACTION_INDEX_SIZE};
 
-	Material(float diffuse = 1.0f, float specular = 0.0f, float transmisson = 0.0f, 
-		Color diffuseColor = Color(1, 1, 1), Color specularColor = Color(1, 1, 1), 
-		float refractiveIndex = 1.52f, Texture* texture=nullptr)
+	Material(float diffuse = 1.0f, float specular = 0.0f, float transmisson = 0.0f,
+		Color diffuseColor = Color(1, 1, 1), Color specularColor = Color(1, 1, 1),
+		float refractiveIndex = 1.52f, float glossiness = 0.0f, Texture* texture = nullptr)
 		: refractiveIndex(refractiveIndex), texture(texture)
 	{
 		float sum = specular + diffuse + transmisson;
@@ -34,6 +35,8 @@ public:
 		ks = specular / sum;
 		kt = transmisson / sum;
 
+		glossiness = glossiness < 0.0f ? -glossiness : glossiness;
+		this->glossiness = glossiness > 1.0f ? 1.0f : glossiness;
 		this->diffuseColor = kd * diffuseColor;
 		this->specularColor = ks * specularColor;
 	}

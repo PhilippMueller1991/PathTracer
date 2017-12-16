@@ -6,7 +6,6 @@ Vector3 Plane::getNormalAt(Vector3 pos)
 	return normal;
 }
 
-// TODO: Fix for normals that are +/-Vector3::up
 float Plane::findIntersection(Ray ray)
 {
 	float denominator = ray.direction.Dot(normal);

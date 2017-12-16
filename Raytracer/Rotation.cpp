@@ -61,7 +61,7 @@ void MirrorHand(Rotation& a)
 	a = p.Inverse() * a * p;
 }
 
-// OPTIONAL TODO: Can be further optimized
+// TODO: Can be further optimized
 Rotation Rotation::RotationBetween(Vector3 from, Vector3 to)
 {
 	from = from.Normalize();
@@ -85,10 +85,6 @@ Rotation Rotation::RotationBetween(Vector3 from, Vector3 to)
 	rot[5] = vt.y * v.z - vs.x;
 	rot[6] = vt.x * v.z - vs.y;
 	rot[7] = vt.y * v.z + vs.x;
-
-	// DEBUG
-	// Swap y and z axis for handedness
-	//MirrorHand(rot);
 
 	return rot;
 }

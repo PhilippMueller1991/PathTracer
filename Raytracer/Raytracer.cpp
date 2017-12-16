@@ -1,11 +1,13 @@
 #include "Raytracer.h"
 
+#include <omp.h>
+
 int Raytracer::maxBounces;
 int Raytracer::samplesPerPixel;
 
-const float ambientIntensity = 0.2f;
+const float ambientIntensity = 0.0f;
 const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 0.5f);
-const float specularExp = 50.0f;
+const float specularExp = 80.0f;
 
 Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
 {
@@ -25,12 +27,9 @@ Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
 
 Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat)
 {
-	Color c(0,0,0);
+	Color c(0, 0, 0);
 	for (uint32_t i = 0; i < scene->lights.size(); i++)
-	{
 		c += PhongLightingModel(hitPos, normal, mat, *scene->lights[i]);
-		//c += MicroFacetLightingModel(hitPos, normal, mat, *scene->lights[i]);
-	}
 	return c;
 }
 
@@ -49,21 +48,11 @@ Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal
 	Vector3 reflectDir = Vector3::Reflect(-lightDir, normal);
 
 	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * light.color;
+	diffuseColor *= mat.GetKd();
 	Color specularColor = (specularExp + 1.0f) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), specularExp) * mat.specularColor;
+	specularColor *= mat.GetKs();
 
 	return mat.diffuseColor * (ambientColor + diffuseColor) + specularColor;
-}
-
-// TODO: Implement micro facet lightning model
-Color Raytracer::MicroFacetLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
-{
-	// Early exit for normals that point away from current light
-	bool backwardsNormal = normal.Dot(light.pos - hitPos) < 0;
-	if (backwardsNormal || IsInShadow(hitPos, light))
-		return ambientColor;
-
-	// For now return flat diffuse color
-	return mat.diffuseColor * light.color;
 }
 
 bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
@@ -85,7 +74,7 @@ Color Raytracer::Traverse(const Ray& ray)
 	Color color = Color::black;
 
 	// Termination criteria
-	if (ray.bounce > maxBounces) 
+	if (ray.bounce > maxBounces)
 		return color;
 
 	Intersection intersection = ComputeFirstRayObjectIntersection(ray);
@@ -93,24 +82,35 @@ Color Raytracer::Traverse(const Ray& ray)
 	if (intersection.idx < 0)
 		return color;
 
+	Material mat = scene->objects[intersection.idx]->material;
 	Vector3 hitPos = ray.direction * intersection.distance + ray.origin;
 	Vector3 normal = scene->objects[intersection.idx]->getNormalAt(hitPos);
-	Material mat = scene->objects[intersection.idx]->material;
 
 	color = EvaluateLocalLightingModel(hitPos, normal, mat);
 
+	// Early bail out for purely diffuse surfaces
+	if (mat.GetKs() < EPS && mat.GetKt() < EPS)
+		return color;
+
 	// Reflection
 	Color reflectionColor;
-	if (mat.GetKs() > 0) 
+	if (mat.GetKs() > EPS)
 	{
 		Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
 		Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
+		if (mat.glossiness > 0.0f)
+		{
+			Vector3 disturbtion = 0.5f * Vector3((float)rand() / RAND_MAX,
+				(float)rand() / RAND_MAX,
+				(float)rand() / RAND_MAX) - 0.5f * Vector3(1, 1, 1);
+			reflectRay.direction += mat.glossiness * disturbtion;
+		}
 		reflectionColor = mat.GetKs() * Traverse(reflectRay);
 	}
 
 	// Transmission / Refraction
 	Color transmissionColor;
-	if (mat.GetKt() > 0)
+	if (mat.GetKt() > EPS)
 	{
 		bool leavingObject = normal.Dot(ray.direction) > 0;
 		float n1 = leavingObject ? mat.refractiveIndex : 1.0f;
@@ -124,8 +124,8 @@ Color Raytracer::Traverse(const Ray& ray)
 			Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, n1, n2);
 			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1);
 			transmissionColor += T * mat.GetKt() * Traverse(transmissionRay);
-		} 
-		if(R > EPS)
+		}
+		if (R > EPS)
 		{
 			Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
 			Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
@@ -133,10 +133,10 @@ Color Raytracer::Traverse(const Ray& ray)
 		}
 	}
 
-	return (color + reflectionColor + transmissionColor).Clamp();
+	return color + reflectionColor + transmissionColor;
 }
 
-// TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, or Multi-Jittered)
+// TODO: Choose  better jitter for random samples per pixel (Poison jitter, Sobol jitter, ...)
 // TODO: Use space partitioning for faster raytracing (ray-object intersection)
 void Raytracer::Render(int width, int height)
 {
@@ -144,10 +144,14 @@ void Raytracer::Render(int width, int height)
 	Image img(width, height);
 	RGB* pixels = img.data;
 
+	omp_set_num_threads(8);	// Number of logical CPU kernels
+
 	int progress = 0;
 	// Render scene to image
+	#pragma omp parallel
 	for (int y = 0; y < img.height; y++)
 	{
+		#pragma omp for nowait
 		for (int x = 0; x < img.width; x++)
 		{
 			int idx = y * img.width + x;

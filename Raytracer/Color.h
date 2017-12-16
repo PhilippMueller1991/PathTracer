@@ -2,8 +2,6 @@
 
 #include <iostream>
 
-// TODO: 
-// Rewrite such that r,g,b are discrete (Should be better for performance)
 class Color
 {
 public:
@@ -16,49 +14,53 @@ public:
 	// Operation overload
 	Color operator+(const Color& rhs) const
 	{
-		return Color(r + rhs.r, g + rhs.g, b + rhs.b);
+		return Color(r + rhs.r, g + rhs.g, b + rhs.b).Clamp();
 	}
 	void operator+=(const Color& rhs)
 	{
 		*this = *this + rhs;
+		this->Clamp();
 	}
 	Color operator*(float rhs) const
 	{
-		return Color(rhs * r, rhs * g, rhs * b);
+		return Color(rhs * r, rhs * g, rhs * b).Clamp();
 	}
 	void operator*=(float rhs)
 	{
 		r *= rhs;
 		g *= rhs;
 		b *= rhs;
+		this->Clamp();
 	}
 	friend Color operator*(float lhs, const Color& rhs)
 	{
-		return Color(lhs * rhs.r, lhs * rhs.g, lhs * rhs.b);
+		return Color(lhs * rhs.r, lhs * rhs.g, lhs * rhs.b).Clamp();
 	}
 	Color operator*(const Color& rhs) const
 	{
-		return Color(r * rhs.r, g * rhs.g, b * rhs.b);
+		return Color(r * rhs.r, g * rhs.g, b * rhs.b).Clamp();
 	}
 	void operator*=(const Color& rhs)
 	{
 		r *= rhs.r;
 		g *= rhs.g;
 		b *= rhs.b;
+		this->Clamp();
 	}
 	Color operator/(float rhs) const
 	{
-		return Color(r / rhs, g / rhs, b / rhs);
+		return Color(r / rhs, g / rhs, b / rhs).Clamp();
 	}
 	friend Color operator/(float lhs, const Color& rhs)
 	{
-		return Color(rhs.r / lhs, rhs.g / lhs, rhs.b / lhs);
+		return Color(rhs.r / lhs, rhs.g / lhs, rhs.b / lhs).Clamp();
 	}
 	void operator/=(float rhs)
 	{
 		r /= rhs;
 		g /= rhs;
 		b /= rhs;
+		this->Clamp();
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Color& obj)
