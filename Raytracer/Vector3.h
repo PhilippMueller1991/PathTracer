@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#define EPS 0.001f
+#define EPS 0.0001f
 
 
 // Left handed coordinate system

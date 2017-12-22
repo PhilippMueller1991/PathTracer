@@ -1,12 +1,15 @@
 #include "Scene.h"
 #include "Raytracer.h"
 
+#include <chrono>
+#include <synchronizationerrors.h>
+
 #define IMAGE_DPI 72
 #define IMAGE_WIDTH 800 //1600
 #define IMAGE_HEIGHT 450 //900
 
 #define RAYTRACER_MAX_BOUNCE 8
-#define RAYTRACER_SAMPLES_PER_PIXEL 10
+#define RAYTRACER_SAMPLES_PER_PIXEL 8
 
 // Four spheres with high reflactence
 void CreateDebugScene0(Scene* scene)
@@ -80,13 +83,14 @@ void CreateDebugScene2(Scene* scene)
 {
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
-	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f, &Texture(Texture::CHESS_BOARD, 0.5f));
+	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f);
 	Material matDiffuseRed(1, 0, 0, Color::red);
 	Material matDiffuseBlue(1, 0, 0, Color::blue);
 	Material matDiffuseGreen(1, 0, 0, Color::green);
-	Material matMirror(0, 1, 0, Color::red, Color::white, 1.0f, 0.8f);
-	Material matMilkyMirror(2, 1, 0, Color::white, Color::white, 80.0f);
-	Material matGlass(0, 0, 1, Color::white, Color::orange, 1.7f);
+	Material matMirror(0, 1, 0, Color::red, Color::white, 1.0f, 0.02f);
+	Material matRoughMirror(10, 1, 0, Color::yellow, Color::white, 1.0f, 0.82f);
+	Material matGlass(0, 0, 1, Color::white, Color::white, 1.7f, 0.0f);
+	Material matRoughGlass(0, 0, 1, Color::white, Color::white, 1.9f, 0.35f);
 
 	// Scene objects
 	const float c = 1.5f;
@@ -100,19 +104,55 @@ void CreateDebugScene2(Scene* scene)
 	//Fill box
 	scene->objects.push_back(new Sphere(Vector3(-0.5f, -0.5f, 0.5f), 0.5f, matMirror));
 	scene->objects.push_back(new Sphere(Vector3(0.6f, -0.5f, -0.5f), 0.5f, matGlass));
+	scene->objects.push_back(new Sphere(Vector3(-0.2f, -0.7f, -0.7f), 0.3f, matRoughMirror));
 
 	// Lights
 	scene->lights.push_back(new Light(Vector3(0, 0.9f, 0), Color::white, 1.2f));
+	scene->lights.push_back(new Light(Vector3(0.3f, 0.6f, -2.0f), Color::white, 0.6f));
+}
+
+// Box with mutliple glass spheres
+void CreateDebugScene3(Scene* scene)
+{
+	// Materials
+	// Can't be const because global predefined colors are not initialized on compile time
+	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f);
+	Material matDiffuseRed(1, 0, 0, Color::red);
+	Material matDiffuseBlue(1, 0, 0, Color::blue);
+	Material matDiffuseGreen(1, 0, 0, Color::green);
+	Material matMirror(0, 1, 0, Color::red, Color::white, 1.0f, 0.22f);
+	Material matGlass(0.4f, 0, 1, Color::white, Color::orange, 1.57f, 0.0f);
+
+	// Scene objects
+	const float c = 1.5f;
+	const Vector3 scale(3, 3, 3);
+	// Build box
+	scene->objects.push_back(new Plane(c * Vector3(0, -1, 0), Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(c * Vector3(0, 1, 0), Rotation::EulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(c * Vector3(-1, 0, 0), Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
+	scene->objects.push_back(new Plane(c * Vector3(1, 0, 0), Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
+	scene->objects.push_back(new Plane(c * Vector3(0, 0, 1), Rotation::EulerAngles(0, PI, 0), scale, matDiffuseGreen));
+	//Fill box
+	float start = 0.9f;
+	const float offset = 0.5f;
+	scene->objects.push_back(new Sphere(Vector3(0, 0, start - offset), 0.4f, matGlass));
+	scene->objects.push_back(new Sphere(Vector3(0, 0, start - 2 * offset), 0.3f, matGlass));
+	scene->objects.push_back(new Sphere(Vector3(0, 0, start - 3 * offset), 0.2f, matGlass));
+	scene->objects.push_back(new Sphere(Vector3(0, 0, start - 4 * offset), 0.1f, matGlass));
+
+	// Lights
+	//scene->lights.push_back(new Light(Vector3(0, 0.9f, 0), Color::white, 1.2f));
+	//scene->lights.push_back(new Light(Vector3(0, 0, 1.2f), Color::white, 1.2f));
+	scene->lights.push_back(new Light(Vector3(0, 0, -5.5f), Color::white, 1.2f));
 }
 
 int main(int argc, char** argv)
 {
-	std::cout << "Rendering scene..." << std::endl;
 	// Seed random number generator with current time
 	srand(static_cast<unsigned>(time(0)));
 
 	// Camera
-	const Vector3 camPos(0, 0, -3);
+	const Vector3 camPos(0, 0.5f, -3);
 	const Vector3 lookAt(0, 0, 0);
 	const Vector3 camDir = (lookAt - camPos).Normalize();
 	Camera cam = Camera(camPos, camDir, IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -124,6 +164,7 @@ int main(int argc, char** argv)
 	//CreateDebugScene0(&scene);	// Four spheres with high reflectance
 	//CreateDebugScene1(&scene);	// Plane scene
 	CreateDebugScene2(&scene);	// Box scene
+	//CreateDebugScene3(&scene);	// Box with mutliple glass spheres
 
 	// Raytracer
 	Raytracer rt(&scene);
@@ -131,7 +172,14 @@ int main(int argc, char** argv)
 	Raytracer::maxBounces = RAYTRACER_MAX_BOUNCE;
 
 	// Render raytraced image
+	std::cout << "Rendering scene..." << std::endl;
+	auto begin = std::chrono::high_resolution_clock::now();
 	rt.Render(IMAGE_WIDTH, IMAGE_HEIGHT);
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+	std::cout << duration << " ms total." << std::endl;
+	std::cout << duration / 1000 << " s total." << std::endl;
+	system("pause");
 
 	// Cleanup
 	scene.objects.clear();

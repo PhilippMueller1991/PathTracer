@@ -2,11 +2,13 @@
 
 #include <omp.h>
 
+#define NUM_THREADS 8
+
 int Raytracer::maxBounces;
 int Raytracer::samplesPerPixel;
 
-const float ambientIntensity = 0.0f;
-const Color ambientColor = ambientIntensity * Color(0.5f, 0.5f, 0.5f);
+const float ambientIntensity = 0.1f;
+const Color ambientColor = ambientIntensity * Color(0.3f, 0.3f, 0.5f);
 const float specularExp = 80.0f;
 
 Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
@@ -21,54 +23,77 @@ Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
 			nearestIntersection.idx = i;
 		}
 	}
-
 	return nearestIntersection;
 }
 
 Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat)
 {
-	Color c(0, 0, 0);
+	Color c = ambientColor;
+	Color tmp;
 	for (uint32_t i = 0; i < scene->lights.size(); i++)
-		c += PhongLightingModel(hitPos, normal, mat, *scene->lights[i]);
-	return c;
+	{
+		tmp = PhongLightingModel(hitPos, normal, mat, *scene->lights[i]);
+		c.r += tmp.r;
+		c.g += tmp.g;
+		c.b += tmp.b;
+	}
+	return c / static_cast<float>(scene->lights.size());
 }
 
 // TODO: Use textures
-// TODO: Fix shadows for transparent objects
 Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
 {
-	// Early exit for normals that point away from current light
-	const bool backwardsNormal = normal.Dot(light.pos - hitPos) < 0;
-	if (backwardsNormal || (mat.GetKt() < EPS && IsInShadow(hitPos, light)))
+	// Early exit for normals that point away from current light and camera
+	// Camera cull allowed because we only evaluate the lighting model for _diffuse_ surfaces
+	bool isBackwardsNormal = normal.Dot(light.pos - hitPos) < 0;
+	bool isInvisibleForCam = normal.Dot(scene->cam.pos - hitPos) < 0;
+	float shadowPercentage = IsInShadow(hitPos, light);
+	if (isBackwardsNormal || isInvisibleForCam || shadowPercentage >= 1.0f)
 		return ambientColor;
 
 	// Phong lighnting model with energy conservation in specular part
 	Vector3 lightDir = (light.pos - hitPos).Normalize();
 	Vector3 viewDir = (scene->cam.pos - hitPos).Normalize();
 	Vector3 reflectDir = Vector3::Reflect(-lightDir, normal);
+	reflectDir = mat.DisturbeReflectionDir(reflectDir);
 
-	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * light.color;
-	diffuseColor *= mat.GetKd();
+	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * mat.diffuseColor;
 	Color specularColor = (specularExp + 1.0f) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), specularExp) * mat.specularColor;
-	specularColor *= mat.GetKs();
 
-	return mat.diffuseColor * (ambientColor + diffuseColor) + specularColor;
+	Color c = light.color * (diffuseColor + specularColor);
+	c *= light.intensity;
+	return (1.0f - shadowPercentage) * c + shadowPercentage * ambientColor;
 }
 
-bool Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
+float Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 {
 	Vector3 rayDir = (light.pos - hitPos).Normalize();
 	Ray shadowRay(hitPos, rayDir);
 	Intersection intersection = ComputeFirstRayObjectIntersection(shadowRay);
 
+	// Ray never intersected with geometry
+	if (intersection.idx < 0)
+		return 0.0f;
+
+	// Transparent objects dont block light fully
+	float kt = scene->objects[intersection.idx]->material.GetKt();
+	if (kt > EPS)
+	{	
+		//float tmp = IsInShadow(intersection.distance * rayDir, light);
+		//return fminf(1.0f, fmaxf(1.0f, 1.0f - kt + tmp));
+		return fmaxf(0.0f, 1.0f - kt/1.1f);
+	}
+
 	// Commented out calculations differs in range 10e-7
 	float lightDistance = (light.pos - hitPos).Dot(rayDir);	//(light.pos - hitPos).Magnitude();
 
 	// Test if anything blocks the light
-	return intersection.idx != 0 && intersection.distance < lightDistance;
+	if (intersection.distance < lightDistance)
+		return 1.0f;
+	else
+		return 0.0f;
 }
 
-// TODO: Fix transmission / refraction: Can be done by saving last material in ray data
 Color Raytracer::Traverse(const Ray& ray)
 {
 	Color color = Color::black;
@@ -88,7 +113,7 @@ Color Raytracer::Traverse(const Ray& ray)
 
 	color = EvaluateLocalLightingModel(hitPos, normal, mat);
 
-	// Early bail out for purely diffuse surfaces
+	// Early return for purely diffuse surfaces
 	if (mat.GetKs() < EPS && mat.GetKt() < EPS)
 		return color;
 
@@ -97,14 +122,8 @@ Color Raytracer::Traverse(const Ray& ray)
 	if (mat.GetKs() > EPS)
 	{
 		Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
-		Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
-		if (mat.glossiness > 0.0f)
-		{
-			Vector3 disturbtion = 0.5f * Vector3((float)rand() / RAND_MAX,
-				(float)rand() / RAND_MAX,
-				(float)rand() / RAND_MAX) - 0.5f * Vector3(1, 1, 1);
-			reflectRay.direction += mat.glossiness * disturbtion;
-		}
+		Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1, mat.refractiveIndex);
+		reflectRay.direction = mat.DisturbeReflectionDir(reflectRay.direction);
 		reflectionColor = mat.GetKs() * Traverse(reflectRay);
 	}
 
@@ -112,23 +131,25 @@ Color Raytracer::Traverse(const Ray& ray)
 	Color transmissionColor;
 	if (mat.GetKt() > EPS)
 	{
-		bool leavingObject = normal.Dot(ray.direction) > 0;
-		float n1 = leavingObject ? mat.refractiveIndex : 1.0f;
-		float n2 = leavingObject ? 1.0f : mat.refractiveIndex;
+		float idr0 = ray.lastIDR;
+		float idr1 = mat.refractiveIndex;
+
 		// Total Internal Refelction (TIR)
-		float R = Vector3::FresnelReflectance(ray.direction, normal, n1, n2);	// Reflection percentage
+		float R = Vector3::FresnelReflectance(ray.direction, normal, idr0, idr1);	// Reflection percentage
 		float T = 1.0f - R;	// Transmission percentage
 		if (T > EPS)
 		{
 			// TBD: Do we need the EPS vector offset in transmission?
-			Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, n1, n2);
-			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1);
+			Vector3 transmissionDir = Vector3::Refract(ray.direction, normal, idr0, idr1);
+			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1, mat.refractiveIndex);
+			transmissionRay.direction = mat.DisturbeReflectionDir(transmissionDir);
 			transmissionColor += T * mat.GetKt() * Traverse(transmissionRay);
 		}
 		if (R > EPS)
 		{
 			Vector3 reflectDir = Vector3::Reflect(ray.direction, normal);
-			Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1);
+			Ray reflectRay = Ray(hitPos, reflectDir, ray.bounce + 1, mat.refractiveIndex);
+			reflectRay.direction = mat.DisturbeReflectionDir(reflectRay.direction);
 			transmissionColor += R * mat.GetKs() * Traverse(reflectRay);
 		}
 	}
@@ -144,30 +165,33 @@ void Raytracer::Render(int width, int height)
 	Image img(width, height);
 	RGB* pixels = img.data;
 
-	omp_set_num_threads(8);	// Number of logical CPU kernels
+	// OMP settings
+	omp_set_num_threads(NUM_THREADS);	// Number of logical CPU kernels
 
 	int progress = 0;
 	// Render scene to image
-	#pragma omp parallel
 	for (int y = 0; y < img.height; y++)
 	{
-		#pragma omp for nowait
+		#pragma omp parallel for //schedule(dynamic) //nowait	
 		for (int x = 0; x < img.width; x++)
 		{
 			int idx = y * img.width + x;
-			Color color;
 			Ray camRay(cam.pos, cam.PixelToRayDir(x, y));
-			color += Traverse(camRay);
+			Color color = Traverse(camRay);
 			float xOffset, yOffset;	// Must be in range(-0.5,0.5)
+			//#pragma omp parallel for reduction(+:color.r, +:color.g, +:color.b)
 			for (int s = 1; s < samplesPerPixel; s++)
 			{
 				// Simple random sampling, better sampling methods achieve better results 
 				xOffset = (float)rand() / (float)RAND_MAX - 0.5f;
 				yOffset = (float)rand() / (float)RAND_MAX - 0.5f;
 				camRay = Ray(cam.pos, cam.PixelToRayDir(x, y, xOffset, yOffset));
-				color += Traverse(camRay);
+				Color tmp = Traverse(camRay);
+				color.r += tmp.r;
+				color.g += tmp.g;
+				color.b += tmp.b;
 			}
-			// Normalize color and set pixel in image
+			// Normalize color
 			color /= static_cast<float>(samplesPerPixel);
 			img.SetPixel(idx, color);
 		}

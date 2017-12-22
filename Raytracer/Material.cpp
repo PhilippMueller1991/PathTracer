@@ -14,6 +14,19 @@ Ray::RayType Material::chooseRandomRayType()
 	return Ray::RayType::RAY_TRANSMISSION;
 }
 
+Vector3 Material::DisturbeReflectionDir(Vector3 reflectionDir) const
+{
+	if (glossiness <= EPS)
+		return reflectionDir;
+
+	Vector3 disturbtion = 0.5f * Vector3((float)rand() / RAND_MAX,
+		(float)rand() / RAND_MAX,
+		(float)rand() / RAND_MAX) - 0.5f * Vector3(1, 1, 1);
+
+	return (reflectionDir + glossiness * disturbtion).Normalize();
+}
+
+// Getter and setter
 // UV values are in range(0,1)
 Color Material::GetColorAt(float u, float v) const
 {
@@ -29,4 +42,9 @@ Color Material::GetColorAt(Vector3 pos) const
 		return diffuseColor;
 
 	return texture->GetColorAt(pos);
+}
+
+void SetTexture(Texture* tex)
+{
+
 }

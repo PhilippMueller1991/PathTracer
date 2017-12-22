@@ -8,7 +8,7 @@ public:
 	int idx;
 	float distance;
 public:
-	Intersection(int idx, float distance) 
+	Intersection(int idx = -1, float distance = FLT_MAX)
 		: idx(idx), distance(distance)
 	{
 	}

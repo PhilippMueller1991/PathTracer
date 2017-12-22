@@ -25,8 +25,8 @@ public:
 
 	Material(float diffuse = 1.0f, float specular = 0.0f, float transmisson = 0.0f,
 		Color diffuseColor = Color(1, 1, 1), Color specularColor = Color(1, 1, 1),
-		float refractiveIndex = 1.52f, float glossiness = 0.0f, Texture* texture = nullptr)
-		: refractiveIndex(refractiveIndex), texture(texture)
+		float refractiveIndex = 1.52f, float glossiness = 0.0f)
+		: refractiveIndex(refractiveIndex)
 	{
 		float sum = specular + diffuse + transmisson;
 		assert(sum != 0);
@@ -43,6 +43,7 @@ public:
 	~Material() {}
 
 	inline Ray::RayType chooseRandomRayType();
+	Vector3 DisturbeReflectionDir(Vector3 reflectionDir) const;
 
 	// Getter and setter
 	float GetKd() const { return kd; }
@@ -50,5 +51,6 @@ public:
 	float GetKt() const { return kt; }
 	Color GetColorAt(float u, float v) const;	// UV values are in range(0,1)
 	Color GetColorAt(Vector3 pos) const;
+	void SetTexture(Texture* tex);
 };
 

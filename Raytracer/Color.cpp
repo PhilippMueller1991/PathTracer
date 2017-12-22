@@ -18,3 +18,11 @@ float Color::Clamp(const float lo, const float hi, const float v)
 {
 	return fmaxf(lo, fminf(hi, v));
 }
+
+Color Color::Normalize() const
+{
+	if (r <= 1.0f && g <= 1.0f && b <= 1.0f)
+		return *this;
+	float sum = r + g + b;
+	return Color(r / sum, g / sum, b / sum);
+}

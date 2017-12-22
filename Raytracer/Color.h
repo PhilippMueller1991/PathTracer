@@ -70,6 +70,7 @@ public:
 	}
 
 	Color Clamp() const;
+	Color Normalize() const;
 	static inline float Clamp(const float lo, const float hi, const float v);
 
 	// Predefined colors
