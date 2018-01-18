@@ -34,8 +34,8 @@ public:
 	~Raytracer() {}
 
 	Intersection ComputeFirstRayObjectIntersection(const Ray& ray);
-	Color EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat);
-	Color PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light);
+	Color EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Color& texCol);
+	Color PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Color& texCol, const Light& light);
 	float IsInShadow(const Vector3& hitPos, const Light& light);
 	Color Traverse(const Ray& ray);
 	void Render(int width, int height);

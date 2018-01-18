@@ -5,11 +5,11 @@
 #include <synchronizationerrors.h>
 
 #define IMAGE_DPI 72
-#define IMAGE_WIDTH 800 //1600
-#define IMAGE_HEIGHT 450 //900
+#define IMAGE_WIDTH 1600 /// 2
+#define IMAGE_HEIGHT 900 /// 2
 
 #define RAYTRACER_MAX_BOUNCE 8
-#define RAYTRACER_SAMPLES_PER_PIXEL 8
+#define RAYTRACER_SAMPLES_PER_PIXEL 32 //1
 
 // Four spheres with high reflactence
 void CreateDebugScene0(Scene* scene)
@@ -81,8 +81,12 @@ void CreateDebugScene1(Scene* scene)
 // Box scene
 void CreateDebugScene2(Scene* scene)
 {
+	// Textures
+	std::shared_ptr<Texture> texChessBoard = std::make_shared<Texture>(5.0f);
+
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
+	Material matDiffuseTexture(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f, texChessBoard);
 	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f);
 	Material matDiffuseRed(1, 0, 0, Color::red);
 	Material matDiffuseBlue(1, 0, 0, Color::blue);
@@ -96,7 +100,7 @@ void CreateDebugScene2(Scene* scene)
 	const float c = 1.5f;
 	const Vector3 scale(3, 3, 3);
 	// Build box
-	scene->objects.push_back(new Plane(Vector3(0, -1, 0),	  Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(Vector3(0, -1, 0),	  Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseTexture));
 	scene->objects.push_back(new Plane(c * Vector3(0, 1, 0),  Rotation::EulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
 	scene->objects.push_back(new Plane(c * Vector3(-1, 0, 0), Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
 	scene->objects.push_back(new Plane(c * Vector3(1, 0, 0),  Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
@@ -146,13 +150,55 @@ void CreateDebugScene3(Scene* scene)
 	scene->lights.push_back(new Light(Vector3(0, 0, -5.5f), Color::white, 1.2f));
 }
 
+// Large scene
+void CreateDebugScene4(Scene* scene)
+{
+	// Materials
+	// Can't be const because global predefined colors are not initialized on compile time
+	Material matDiffuseGray(1, 0, 0, Color(0.5f, 0.5f, 0.5f), Color::white, 1.5f, 0.0f);
+	Material matMirror(0, 1, 0, Color::red, Color::white, 1.0f, 0.22f);
+	Material matMirrorRough(0, 1, 0, Color::white, Color::white, 1.0f, 8.82f);
+	Material matGlass(0.4f, 0, 1, Color::white, Color::orange, 1.57f, 0.0f);
+
+	// Scene objects
+	const Vector3 scale(80, 80, 80);
+	// Build box
+	scene->objects.push_back(new Plane(Vector3(0, -1, 0), Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	// Place spheres on plane
+	float start = 0.9f;
+	const float offset = 0.5f;
+	const float randScale = 0.25f;
+	for (int i = -10; i < 10; i++)
+	{
+		for (int j = -10; j < 10; j++)
+		{
+			scene->objects.push_back(new Sphere(Vector3(static_cast<float>(i), -0.7f, static_cast<float>(j)),
+				0.3f,
+				Material((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX,
+					Color::RandomColor(),
+					Color::RandomColor(),
+					(rand() % 2 / 2.0f),
+					(float)rand() / (float)RAND_MAX)));
+		}
+	}
+	// Lights
+	for (int i = -4; i < 4; i++)
+	{
+		scene->lights.push_back(new Light(Vector3(rand() / static_cast<float>(RAND_MAX) - 0.5f,
+			0.9f,
+			static_cast<float>(i * 3.5f)),
+			Color::white,
+			2.8f));
+	}
+}
+
 int main(int argc, char** argv)
 {
 	// Seed random number generator with current time
-	srand(static_cast<unsigned>(time(0)));
+	srand(static_cast<unsigned int>(time(0)));
 
 	// Camera
-	const Vector3 camPos(0, 0.5f, -3);
+	const Vector3 camPos(0.5f, 1.0f, -3.0f);
 	const Vector3 lookAt(0, 0, 0);
 	const Vector3 camDir = (lookAt - camPos).Normalize();
 	Camera cam = Camera(camPos, camDir, IMAGE_WIDTH, IMAGE_HEIGHT);
@@ -165,6 +211,7 @@ int main(int argc, char** argv)
 	//CreateDebugScene1(&scene);	// Plane scene
 	CreateDebugScene2(&scene);	// Box scene
 	//CreateDebugScene3(&scene);	// Box with mutliple glass spheres
+	//CreateDebugScene4(&scene);	// Large scene
 
 	// Raytracer
 	Raytracer rt(&scene);

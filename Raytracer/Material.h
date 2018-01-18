@@ -6,6 +6,7 @@
 #include "Texture.h"
 
 #include <assert.h>
+#include <memory>
 
 class Material
 {
@@ -14,7 +15,7 @@ public:
 	Color specularColor;
 	float refractiveIndex;
 	float glossiness;
-	Texture* texture;
+	std::shared_ptr<Texture> texture;
 
 private:
 	float kd, ks, kt;
@@ -25,8 +26,8 @@ public:
 
 	Material(float diffuse = 1.0f, float specular = 0.0f, float transmisson = 0.0f,
 		Color diffuseColor = Color(1, 1, 1), Color specularColor = Color(1, 1, 1),
-		float refractiveIndex = 1.52f, float glossiness = 0.0f)
-		: refractiveIndex(refractiveIndex)
+		float refractiveIndex = 1.52f, float glossiness = 0.0f, std::shared_ptr<Texture> texture = nullptr)
+		: refractiveIndex(refractiveIndex), texture(texture)
 	{
 		float sum = specular + diffuse + transmisson;
 		assert(sum != 0);
@@ -49,8 +50,7 @@ public:
 	float GetKd() const { return kd; }
 	float GetKs() const { return ks; }
 	float GetKt() const { return kt; }
-	Color GetColorAt(float u, float v) const;	// UV values are in range(0,1)
-	Color GetColorAt(Vector3 pos) const;
-	void SetTexture(Texture* tex);
+	Color GetColorAt(float u, float v) const;
+	void SetTexture(std::shared_ptr<Texture> tex);
 };
 

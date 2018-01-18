@@ -19,7 +19,8 @@ public:
 	}
 	~Sphere() {}
 
-	Vector3 getNormalAt(Vector3 pos);
-	float findIntersection(Ray ray);
+	Vector3 getNormalAt(Vector3 pos) override;
+	Color getColorAt(Vector3 pos) override { return material.GetColorAt(0.0f, 0.0f); }	// TODO
+	float findIntersection(Ray ray) override;
 };
 

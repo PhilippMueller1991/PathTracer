@@ -26,13 +26,13 @@ Intersection Raytracer::ComputeFirstRayObjectIntersection(const Ray& ray)
 	return nearestIntersection;
 }
 
-Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat)
+Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Color& texCol)
 {
 	Color c = ambientColor;
 	Color tmp;
 	for (uint32_t i = 0; i < scene->lights.size(); i++)
 	{
-		tmp = PhongLightingModel(hitPos, normal, mat, *scene->lights[i]);
+		tmp = PhongLightingModel(hitPos, normal, mat, texCol, *scene->lights[i]);
 		c.r += tmp.r;
 		c.g += tmp.g;
 		c.b += tmp.b;
@@ -41,7 +41,7 @@ Color Raytracer::EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3
 }
 
 // TODO: Use textures
-Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Light& light)
+Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Color& texCol, const Light& light)
 {
 	// Early exit for normals that point away from current light and camera
 	// Camera cull allowed because we only evaluate the lighting model for _diffuse_ surfaces
@@ -57,7 +57,8 @@ Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal
 	Vector3 reflectDir = Vector3::Reflect(-lightDir, normal);
 	reflectDir = mat.DisturbeReflectionDir(reflectDir);
 
-	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * mat.diffuseColor;
+	//Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * mat.diffuseColor;
+	Color diffuseColor = fmaxf(0.0f, lightDir.Dot(normal)) * texCol;
 	Color specularColor = (specularExp + 1.0f) / (2.0f * PI) * powf(fmaxf(0.0f, reflectDir.Dot(viewDir)), specularExp) * mat.specularColor;
 
 	Color c = light.color * (diffuseColor + specularColor);
@@ -65,6 +66,7 @@ Color Raytracer::PhongLightingModel(const Vector3& hitPos, const Vector3& normal
 	return (1.0f - shadowPercentage) * c + shadowPercentage * ambientColor;
 }
 
+// TODO: Look at papers how they handle transparent shadows
 float Raytracer::IsInShadow(const Vector3& hitPos, const Light& light)
 {
 	Vector3 rayDir = (light.pos - hitPos).Normalize();
@@ -110,8 +112,9 @@ Color Raytracer::Traverse(const Ray& ray)
 	Material mat = scene->objects[intersection.idx]->material;
 	Vector3 hitPos = ray.direction * intersection.distance + ray.origin;
 	Vector3 normal = scene->objects[intersection.idx]->getNormalAt(hitPos);
+	Color texColor = scene->objects[intersection.idx]->getColorAt(hitPos);
 
-	color = EvaluateLocalLightingModel(hitPos, normal, mat);
+	color = EvaluateLocalLightingModel(hitPos, normal, mat, texColor);
 
 	// Early return for purely diffuse surfaces
 	if (mat.GetKs() < EPS && mat.GetKt() < EPS)

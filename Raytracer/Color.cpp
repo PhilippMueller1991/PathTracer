@@ -26,3 +26,8 @@ Color Color::Normalize() const
 	float sum = r + g + b;
 	return Color(r / sum, g / sum, b / sum);
 }
+
+Color Color::RandomColor()
+{
+	return Color((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX);
+}

@@ -16,15 +16,31 @@ float Plane::findIntersection(Ray ray)
 		return -1;
 	}
 	
-	const float d = enumerator / denominator;
-	const Vector3 hitPos = ray.origin + ray.direction * d;
-	const Vector3 xDir = transform.rot * Vector3::right;
-	const Vector3 yDir = transform.rot * Vector3::up;
-	const float xDistance = hitPos.Dot(xDir);
-	const float yDistance = hitPos.Dot(yDir);
+	float d = enumerator / denominator;
+	Vector3 hitPos = ray.origin + ray.direction * d;
+	Vector3 xDir = transform.rot * Vector3::right;
+	Vector3 yDir = transform.rot * Vector3::up;
+	float xDistance = hitPos.Dot(xDir);
+	float yDistance = hitPos.Dot(yDir);
 
 	if (fabsf(xDistance) > transform.scale.x / 2.0f || fabsf(yDistance) > transform.scale.y / 2.0f)
 		return -1;
 
 	return d;
+}
+
+Color Plane::getColorAt(Vector3 pos)
+{
+	if (material.texture == nullptr)
+		return material.diffuseColor;
+
+	Vector3 xDir = transform.rot * Vector3::right;
+	Vector3 yDir = transform.rot * Vector3::up;
+	float xDistance = fabsf(pos.Dot(xDir));
+	float yDistance = fabsf(pos.Dot(yDir));
+
+	float u = xDistance / (transform.scale.x / 2.0f);
+	float v = yDistance / (transform.scale.y / 2.0f);
+
+	return material.GetColorAt(u, v);
 }

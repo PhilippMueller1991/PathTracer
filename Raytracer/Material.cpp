@@ -27,24 +27,15 @@ Vector3 Material::DisturbeReflectionDir(Vector3 reflectionDir) const
 }
 
 // Getter and setter
-// UV values are in range(0,1)
 Color Material::GetColorAt(float u, float v) const
 {
 	if (texture == nullptr)
 		return diffuseColor;
 
-	return texture->GetColorAt(u, v);
+	return texture->GetColorAt(u,v);
 }
 
-Color Material::GetColorAt(Vector3 pos) const
+void Material::SetTexture(std::shared_ptr<Texture> tex)
 {
-	if (texture == nullptr)
-		return diffuseColor;
-
-	return texture->GetColorAt(pos);
-}
-
-void SetTexture(Texture* tex)
-{
-
+	texture = tex;
 }
