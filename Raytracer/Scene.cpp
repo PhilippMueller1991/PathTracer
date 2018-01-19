@@ -1,12 +1,13 @@
 #include "Scene.h"
 #include "Raytracer.h"
+#include "TextureChessPattern.h"
 
 #include <chrono>
 #include <synchronizationerrors.h>
 
 #define IMAGE_DPI 72
-#define IMAGE_WIDTH 1600 /// 2
-#define IMAGE_HEIGHT 900 /// 2
+#define IMAGE_WIDTH 1600 // 2
+#define IMAGE_HEIGHT 900 // 2
 
 #define RAYTRACER_MAX_BOUNCE 8
 #define RAYTRACER_SAMPLES_PER_PIXEL 32 //1
@@ -82,7 +83,7 @@ void CreateDebugScene1(Scene* scene)
 void CreateDebugScene2(Scene* scene)
 {
 	// Textures
-	std::shared_ptr<Texture> texChessBoard = std::make_shared<Texture>(5.0f);
+	std::shared_ptr<Texture> texChessBoard = std::make_shared<TextureChessPattern>(10.0f, Color::black, Color::white);
 
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
@@ -92,7 +93,7 @@ void CreateDebugScene2(Scene* scene)
 	Material matDiffuseBlue(1, 0, 0, Color::blue);
 	Material matDiffuseGreen(1, 0, 0, Color::green);
 	Material matMirror(0, 1, 0, Color::red, Color::white, 1.0f, 0.02f);
-	Material matRoughMirror(10, 1, 0, Color::yellow, Color::white, 1.0f, 0.82f);
+	Material matRoughMirror(5, 1, 4, Color::yellow, Color::white, 1.0f, 0.22f);
 	Material matGlass(0, 0, 1, Color::white, Color::white, 1.7f, 0.0f);
 	Material matRoughGlass(0, 0, 1, Color::white, Color::white, 1.9f, 0.35f);
 

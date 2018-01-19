@@ -36,11 +36,11 @@ Color Plane::getColorAt(Vector3 pos)
 
 	Vector3 xDir = transform.rot * Vector3::right;
 	Vector3 yDir = transform.rot * Vector3::up;
-	float xDistance = fabsf(pos.Dot(xDir));
-	float yDistance = fabsf(pos.Dot(yDir));
+	float xDistance = pos.Dot(xDir);
+	float yDistance = pos.Dot(yDir);
 
-	float u = xDistance / (transform.scale.x / 2.0f);
-	float v = yDistance / (transform.scale.y / 2.0f);
+	float u = (xDistance + transform.scale.x / 2.0f) / (transform.scale.x);
+	float v = (yDistance + transform.scale.y / 2.0f) / (transform.scale.y);
 
 	return material.GetColorAt(u, v);
 }
