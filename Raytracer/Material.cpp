@@ -14,28 +14,28 @@ Ray::RayType Material::chooseRandomRayType()
 	return Ray::RayType::RAY_TRANSMISSION;
 }
 
-Vector3 Material::DisturbeReflectionDir(Vector3 reflectionDir) const
+Vec3f Material::DisturbeReflectionDir(Vec3f reflectionDir) const
 {
 	if (glossiness <= EPS)
 		return reflectionDir;
 
-	Vector3 disturbtion = 0.5f * Vector3((float)rand() / RAND_MAX,
+	Vec3f disturbtion = 0.5f * Vec3f((float)rand() / RAND_MAX,
 		(float)rand() / RAND_MAX,
-		(float)rand() / RAND_MAX) - 0.5f * Vector3(1, 1, 1);
+		(float)rand() / RAND_MAX) - 0.5f * Vec3f(1, 1, 1);
 
-	return (reflectionDir + glossiness * disturbtion).Normalize();
+	return (reflectionDir + glossiness * disturbtion).normalize();
 }
 
 // Getter and setter
-Color Material::GetColorAt(float u, float v) const
+Color Material::getColorAt(float u, float v) const
 {
 	if (texture == nullptr)
 		return diffuseColor;
 
-	return texture->GetColorAt(u,v);
+	return texture->getColorAt(u,v);
 }
 
-void Material::SetTexture(std::shared_ptr<Texture> tex)
+void Material::setTexture(std::shared_ptr<Texture> tex)
 {
 	texture = tex;
 }

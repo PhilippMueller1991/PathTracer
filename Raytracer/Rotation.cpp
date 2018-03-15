@@ -1,6 +1,6 @@
 #include "Rotation.h"
 
-Rotation Rotation::RotateX(float a)
+Rotation Rotation::rotateX(float a)
 {
 	Rotation m;
 	m[0] = 1;		m[1] = 0;			m[2] = 0;
@@ -8,7 +8,7 @@ Rotation Rotation::RotateX(float a)
 	m[6] = 0;		m[7] = sinf(a);		m[8] = cosf(a);
 	return m;
 }
-Rotation Rotation::RotateY(float a)
+Rotation Rotation::rotateY(float a)
 {
 	Rotation m;
 	m[0] = cosf(a);		m[1] = 0;		m[2] = sinf(a);
@@ -16,7 +16,7 @@ Rotation Rotation::RotateY(float a)
 	m[6] = -sinf(a);	m[7] = 0;		m[8] = cosf(a);
 	return m;
 }
-Rotation Rotation::RotateZ(float a)
+Rotation Rotation::rotateZ(float a)
 {
 	Rotation m;
 	m[0] = cosf(a);		m[1] = -sinf(a);	m[2] = 0;
@@ -25,17 +25,17 @@ Rotation Rotation::RotateZ(float a)
 	return m;
 }
 
-Rotation Rotation::EulerAngles(float a, float b, float c)
+Rotation Rotation::eulerAngles(float a, float b, float c)
 {
-	return RotateX(a) * RotateY(b) * RotateZ(c);
+	return rotateX(a) * rotateY(b) * rotateZ(c);
 }
 
 // v = vector to rotate
 // r = rotation axis, normalized
 // See http://ksuweb.kennesaw.edu/~plaval//math4490/rotgen.pdf
-Vector3 Rotation::RotateAround(Vector3 v, Vector3 r, float angle)
+Vec3f Rotation::rotateAround(Vec3f v, Vec3f r, float angle)
 {
-	r = r.Normalize();
+	r = r.normalize();
 	const float C = cosf(angle);
 	const float S = sinf(angle);
 	const float t = 1 - C;
@@ -58,20 +58,20 @@ void MirrorHand(Rotation& a)
 	p[5] = 1.0f;
 	p[7] = 1.0f;
 
-	a = p.Inverse() * a * p;
+	a = p.inverse() * a * p;
 }
 
 // TODO: Can be further optimized
-Rotation Rotation::RotationBetween(Vector3 from, Vector3 to)
+Rotation Rotation::rotationBetween(Vec3f from, Vec3f to)
 {
-	from = from.Normalize();
-	to = to.Normalize();
+	from = from.normalize();
+	to = to.normalize();
 
-	const Vector3 v = to.Cross(from);	// Rotation axis
-	const float ca = to.Dot(from);
-	const Vector3 vs = to.Cross(from);
+	const Vec3f v = to.cross(from);	// Rotation axis
+	const float ca = to.dot(from);
+	const Vec3f vs = to.cross(from);
 	const float t = 1.0f - ca;
-	const Vector3 vt = t * v;
+	const Vec3f vt = t * v;
 
 	Rotation rot;
 	// Diagonal
@@ -89,7 +89,7 @@ Rotation Rotation::RotationBetween(Vector3 from, Vector3 to)
 	return rot;
 }
 
-Rotation Rotation::Inverse() const
+Rotation Rotation::inverse() const
 {
 	Rotation rot;
 	for (int i = 0; i < 3; i++)

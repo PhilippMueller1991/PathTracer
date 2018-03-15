@@ -9,17 +9,17 @@ const Color Color::blue = Color(0, 0, 1);
 const Color Color::yellow = Color(1, 1, 0);
 const Color Color::orange = Color(1, 0.5f, 0);
 
-Color Color::Clamp() const
+Color Color::clamp() const
 {
-	return Color(Clamp(0.0f, 1.0f, r), Clamp(0.0f, 1.0f, g), Clamp(0.0f, 1.0f, b));
+	return Color(clamp(0.0f, 1.0f, r), clamp(0.0f, 1.0f, g), clamp(0.0f, 1.0f, b));
 }
 
-float Color::Clamp(const float lo, const float hi, const float v)
+float Color::clamp(const float lo, const float hi, const float v)
 {
 	return fmaxf(lo, fminf(hi, v));
 }
 
-Color Color::Normalize() const
+Color Color::normalize() const
 {
 	if (r <= 1.0f && g <= 1.0f && b <= 1.0f)
 		return *this;
@@ -27,7 +27,7 @@ Color Color::Normalize() const
 	return Color(r / sum, g / sum, b / sum);
 }
 
-Color Color::RandomColor()
+Color Color::getRandomColor()
 {
 	return Color((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX);
 }

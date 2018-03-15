@@ -1,12 +1,13 @@
 #pragma once
 
-#include "Vector3.h"
+#include "Vector.h"
 #include "Camera.h"
 #include "Ray.h"
 #include "Intersection.h"
 #include "Light.h"
 #include "Sphere.h"
 #include "Plane.h"
+#include "Mesh.h"
 #include "Scene.h"
 #include "Image.h"
 
@@ -33,10 +34,10 @@ public:
 	}
 	~Raytracer() {}
 
-	Intersection ComputeFirstRayObjectIntersection(const Ray& ray);
-	Color EvaluateLocalLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Color& texCol);
-	Color PhongLightingModel(const Vector3& hitPos, const Vector3& normal, const Material& mat, const Color& texCol, const Light& light);
-	float IsInShadow(const Vector3& hitPos, const Light& light);
-	Color Traverse(const Ray& ray);
-	void Render(int width, int height);
+	Intersection computeFirstRayObjectIntersection(Ray& ray);
+	Color evaluateLocalLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol);
+	Color phongLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol, const Light& light);
+	float isInShadow(const Vec3f& hitPos, const Light& light);
+	Color traverse(Ray& ray);
+	void render(int width, int height);
 };

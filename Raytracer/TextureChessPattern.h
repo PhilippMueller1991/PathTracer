@@ -17,6 +17,6 @@ public:
 	{
 	}
 
-	Color GetColorAt(float u, float v) override;
+	Color getColorAt(float u, float v) override;
 };
 

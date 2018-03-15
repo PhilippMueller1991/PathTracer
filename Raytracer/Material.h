@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Ray.h"
-#include "Vector3.h"
+#include "Vector.h"
 #include "Color.h"
 #include "Texture.h"
 
@@ -44,13 +44,13 @@ public:
 	~Material() {}
 
 	inline Ray::RayType chooseRandomRayType();
-	Vector3 DisturbeReflectionDir(Vector3 reflectionDir) const;
+	Vec3f DisturbeReflectionDir(Vec3f reflectionDir) const;
 
 	// Getter and setter
-	float GetKd() const { return kd; }
-	float GetKs() const { return ks; }
-	float GetKt() const { return kt; }
-	Color GetColorAt(float u, float v) const;
-	void SetTexture(std::shared_ptr<Texture> tex);
+	float getKd() const { return kd; }
+	float getKs() const { return ks; }
+	float getKt() const { return kt; }
+	Color getColorAt(float u, float v) const;
+	void setTexture(std::shared_ptr<Texture> tex);
 };
 

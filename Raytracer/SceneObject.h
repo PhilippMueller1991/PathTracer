@@ -4,20 +4,20 @@
 #include "Ray.h"
 #include "Material.h"
 
+// Abstract class
 class SceneObject
 {
 public:
-	Transform transform;
-	Material material;
-
+	Transform transform = Transform();
+	Material material = Material(1,2);
+public:
 	SceneObject(Transform t = Transform(), Material m = Material(1, 2)) 
 		: transform(t), material(m)
 	{
 	}
-	~SceneObject() {}
 
-	virtual Vector3 getNormalAt(Vector3 pos) = 0;
-	virtual Color getColorAt(Vector3 pos) = 0;
-	virtual float findIntersection(Ray ray) = 0;
+	virtual Vec3f getNormalAt(Vec3f pos) = 0;
+	virtual Color getColorAt(Vec3f pos) = 0;
+	virtual bool findIntersection(Ray& ray, float& dist) = 0;
 };
 

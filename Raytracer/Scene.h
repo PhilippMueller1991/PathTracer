@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
+#include "Vector.h"
 #include "SceneObject.h"
 #include "Light.h"
 #include "Camera.h"

@@ -5,23 +5,22 @@
 class Plane : public SceneObject
 {
 protected:
-	Vector3 normal;
+	Vec3f normal;
 
 public:
 	Plane()
 		: SceneObject()
 	{
-		normal = Vector3::forward;
+		normal = Vec3f::forward;
 	}
-	Plane(Vector3 pos, Rotation rot, Vector3 scale, Material m = Material(1, 2))
+	Plane(Vec3f pos, Rotation rot, Vec3f scale, Material m = Material(1, 2))
 		: SceneObject(Transform(pos,rot,scale), m)
 	{
-		normal = rot * Vector3::forward;
+		normal = rot * Vec3f::forward;
 	}
-	~Plane() {}
 
-	Vector3 getNormalAt(Vector3 pos) override;
-	Color getColorAt(Vector3 pos) override;
-	float findIntersection(Ray ray) override;
+	Vec3f getNormalAt(Vec3f pos) override;
+	Color getColorAt(Vec3f pos) override;
+	bool findIntersection(Ray& ray, float& dist) override;
 };
 

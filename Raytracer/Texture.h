@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
+#include "Vector.h"
 #include "Color.h"
 
 class Texture
@@ -16,6 +16,6 @@ public:
 	{
 	}
 
-	virtual Color GetColorAt(float u, float v); // UV values are in range(0,1)
+	virtual Color getColorAt(float u, float v); // UV values are in range(0,1)
 };
 

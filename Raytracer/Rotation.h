@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
+#include "Vector.h"
 #include "Matrix3x3.h"
 
 class Rotation : public Matrix3x3
@@ -18,13 +18,13 @@ public:
 			this->m[i] = mat[i];
 	}
 
-	static Rotation RotateX(float a);
-	static Rotation RotateY(float a);
-	static Rotation RotateZ(float a);
-	static Rotation EulerAngles(float a, float b, float c);
-	static Rotation RotationBetween(Vector3 from, Vector3 to);
-	static Vector3 RotateAround(Vector3 v, Vector3 r, float angle);
+	static Rotation rotateX(float a);
+	static Rotation rotateY(float a);
+	static Rotation rotateZ(float a);
+	static Rotation eulerAngles(float a, float b, float c);
+	static Rotation rotationBetween(Vec3f from, Vec3f to);
+	static Vec3f rotateAround(Vec3f v, Vec3f r, float angle);
 
-	Rotation Inverse() const;
+	Rotation inverse() const;
 };
 

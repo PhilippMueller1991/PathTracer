@@ -30,7 +30,7 @@ public:
 		delete data;
 	}
 
-	void SetPixel(int idx, Color color);
-	void SaveBitmap(std::string filename);
+	void setPixel(int idx, Color color);
+	void saveBitmap(std::string filename);
 };
 

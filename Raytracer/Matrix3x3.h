@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vector3.h"
+#include "Vector.h"
 
 class Matrix3x3
 {
@@ -80,7 +80,7 @@ public:
 			os << rhs.m[i * 3] << ", " << rhs.m[i * 3 + 1] << ", " << rhs.m[i * 3 + 2] << "\n";
 		return os;
 	}
-	Vector3 operator*(const Vector3& rhs) const
+	Vec3f operator*(const Vec3f& rhs) const
 	{
 		float r[] = { rhs.x, rhs.y, rhs.z };
 		float res[] = { 0.0f, 0.0f, 0.0f };
@@ -91,13 +91,13 @@ public:
 				res[i] += this->m[i * 3 + k] * r[k];
 			}
 		}
-		return Vector3(res[0], res[1], res[2]);
+		return Vec3f(res[0], res[1], res[2]);
 	}
 
 	// Get row and column no tested!
-	Vector3 GetRow(int idx) const;
-	Vector3 GetColumn(int idx) const;
-	Matrix3x3 Transpose() const;
-	static Matrix3x3 Eye();
+	Vec3f getRow(int idx) const;
+	Vec3f getColumn(int idx) const;
+	Matrix3x3 transpose() const;
+	static Matrix3x3 eye();
 };
 
