@@ -18,13 +18,13 @@ public:
 			this->m[i] = mat[i];
 	}
 
-	static Rotation rotateX(float a);
-	static Rotation rotateY(float a);
-	static Rotation rotateZ(float a);
-	static Rotation eulerAngles(float a, float b, float c);
-	static Rotation rotationBetween(Vec3f from, Vec3f to);
-	static Vec3f rotateAround(Vec3f v, Vec3f r, float angle);
+	static Rotation RotateX(float a);
+	static Rotation RotateY(float a);
+	static Rotation RotateZ(float a);
+	static Rotation EulerAngles(float a, float b, float c);
+	static Rotation RotationBetween(Vec3f from, Vec3f to);
+	static Vec3f RotateAround(Vec3f v, Vec3f r, float angle);
 
-	Rotation inverse() const;
+	Rotation Inverse() const;
 };
 

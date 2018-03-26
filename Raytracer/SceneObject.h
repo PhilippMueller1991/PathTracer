@@ -16,8 +16,8 @@ public:
 	{
 	}
 
-	virtual Vec3f getNormalAt(Vec3f pos) = 0;
-	virtual Color getColorAt(Vec3f pos) = 0;
-	virtual bool findIntersection(Ray& ray, float& dist) = 0;
+	virtual Vec3f GetNormalAt(Vec3f pos) = 0;
+	virtual Color GetColorAt(Vec3f pos) = 0;
+	virtual bool FindIntersection(Ray& ray, float& dist) = 0;
 };
 

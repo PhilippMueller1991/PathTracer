@@ -19,8 +19,8 @@ public:
 		normal = rot * Vec3f::forward;
 	}
 
-	Vec3f getNormalAt(Vec3f pos) override;
-	Color getColorAt(Vec3f pos) override;
-	bool findIntersection(Ray& ray, float& dist) override;
+	Vec3f GetNormalAt(Vec3f pos) override;
+	Color GetColorAt(Vec3f pos) override;
+	bool FindIntersection(Ray& ray, float& dist) override;
 };
 

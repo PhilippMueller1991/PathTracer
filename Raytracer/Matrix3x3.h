@@ -95,9 +95,9 @@ public:
 	}
 
 	// Get row and column no tested!
-	Vec3f getRow(int idx) const;
-	Vec3f getColumn(int idx) const;
-	Matrix3x3 transpose() const;
-	static Matrix3x3 eye();
+	Vec3f GetRow(int idx) const;
+	Vec3f GetColumn(int idx) const;
+	Matrix3x3 Transpose() const;
+	static Matrix3x3 Eye();
 };
 

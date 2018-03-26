@@ -90,37 +90,37 @@ public:
 	}
 
 	// Auxiliary methods
-	float magnitude() const
+	float Magnitude() const
 	{
 		return sqrtf(x * x + y * y + z * z);
 	}
-	float magnitudeSqr() const
+	float MagnitudeSqr() const
 	{
 		return x * x + y * y + z * z;
 	}
-	float dot(const Vector& b) const
+	float Dot(const Vector& b) const
 	{
 		return x * b.x + y * b.y + z * b.z;
 	}
-	Vector cross(const Vector& b) const
+	Vector Cross(const Vector& b) const
 	{
 		return Vector(y * b.z - b.y * z,
 			z * b.x - b.z * x,
 			x * b.y - b.x * y);
 	}
-	Vector normalize() const
+	Vector Normalize() const
 	{
-		return *this / magnitude();
+		return *this / Magnitude();
 	}
 
-	static Vector reflect(const Vector& incident, const Vector& normal)
+	static Vector Reflect(const Vector& incident, const Vector& normal)
 	{
-		return incident - 2.0f * (incident.dot(normal))*normal;
+		return incident - 2.0f * (incident.Dot(normal))*normal;
 	}
-	static Vector refract(const Vector& incident, const Vector& normal, float n1, float n2)
+	static Vector Refract(const Vector& incident, const Vector& normal, float n1, float n2)
 	{
 		float n = n1 / n2;
-		float cosI = -incident.dot(normal);
+		float cosI = -incident.Dot(normal);
 		float sinT2 = n * n * (1.0f - cosI * cosI);
 
 		// Total internal refraction
@@ -131,10 +131,10 @@ public:
 
 		return n * incident + (n * cosI - cosT) * normal;
 	}
-	static float fresnelReflectance(const Vector& incident, const Vector& normal, float n1, float n2)
+	static float FresnelReflectance(const Vector& incident, const Vector& normal, float n1, float n2)
 	{
 		float n = n1 / n2;
-		float cosI = -incident.dot(normal);
+		float cosI = -incident.Dot(normal);
 		float sinT2 = n * n * (1.0f - cosI * cosI);
 
 		// Total internal refraction
@@ -233,29 +233,29 @@ public:
 	}
 
 	// Auxiliary methods
-	float magnitude() const
+	float Magnitude() const
 	{
 		return sqrtf(x * x + y * y);
 	}
-	float magnitudeSqr() const
+	float MagnitudeSqr() const
 	{
 		return x * x + y * y;
 	}
-	float dot(const Vector& b) const
+	float Dot(const Vector& b) const
 	{
 		return x * b.x + y * b.y;
 	}
-	float area(const Vector& b) const
+	float Area(const Vector& b) const
 	{
 		return x * b.y - y * b.x;
 	}
-	Vector cross() const
+	Vector Cross() const
 	{
 		return Vector(y, -x);
 	}
-	Vector normalize() const
+	Vector Normalize() const
 	{
-		return *this / magnitude();
+		return *this / Magnitude();
 	}
 
 	// Predefined vectors

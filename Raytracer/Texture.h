@@ -16,6 +16,6 @@ public:
 	{
 	}
 
-	virtual Color getColorAt(float u, float v); // UV values are in range(0,1)
+	virtual Color GetColorAt(float u, float v); // UV values are in range(0,1)
 };
 

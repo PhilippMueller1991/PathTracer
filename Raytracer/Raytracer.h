@@ -34,10 +34,10 @@ public:
 	}
 	~Raytracer() {}
 
-	Intersection computeFirstRayObjectIntersection(Ray& ray);
-	Color evaluateLocalLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol);
-	Color phongLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol, const Light& light);
-	float isInShadow(const Vec3f& hitPos, const Light& light);
-	Color traverse(Ray& ray);
-	void render(int width, int height);
+	Intersection ComputeFirstRayObjectIntersection(Ray& ray);
+	Color EvaluateLocalLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol);
+	Color PhongLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol, const Light& light);
+	float IsInShadow(const Vec3f& hitPos, const Light& light);
+	Color Traverse(Ray& ray);
+	void Render(int width, int height);
 };

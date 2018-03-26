@@ -18,11 +18,11 @@ public:
 		: pos(pos), dir(dir), width(width), height(height)
 	{
 		aspectRatio = static_cast<float>(width) / static_cast<float>(height);
-		updateDirection(dir);
+		UpdateDirection(dir);
 	}
 	~Camera() {}
 
-	void updateDirection(Vec3f dir);
-	Vec3f pixelToRayDir(int x, int y, float xSubPixelOffset = 0.5f, float ySubPixelOffset = 0.5f);
+	void UpdateDirection(Vec3f dir);
+	Vec3f PixelToRayDir(int x, int y, float xSubPixelOffset = 0.5f, float ySubPixelOffset = 0.5f);
 };
 

@@ -18,8 +18,8 @@ public:
 	{
 	}
 
-	Vec3f getNormalAt(Vec3f pos) override;
-	Color getColorAt(Vec3f pos) override { return material.getColorAt(0.0f, 0.0f); }	// TODO
-	bool findIntersection(Ray& ray, float& dist) override;
+	Vec3f GetNormalAt(Vec3f pos) override;
+	Color GetColorAt(Vec3f pos) override { return material.GetColorAt(0.0f, 0.0f); }	// TODO
+	bool FindIntersection(Ray& ray, float& dist) override;
 };
 

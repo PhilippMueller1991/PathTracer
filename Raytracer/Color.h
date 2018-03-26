@@ -14,53 +14,53 @@ public:
 	// Operation overload
 	Color operator+(const Color& rhs) const
 	{
-		return Color(r + rhs.r, g + rhs.g, b + rhs.b).clamp();
+		return Color(r + rhs.r, g + rhs.g, b + rhs.b).Clamp();
 	}
 	void operator+=(const Color& rhs)
 	{
 		*this = *this + rhs;
-		this->clamp();
+		this->Clamp();
 	}
 	Color operator*(float rhs) const
 	{
-		return Color(rhs * r, rhs * g, rhs * b).clamp();
+		return Color(rhs * r, rhs * g, rhs * b).Clamp();
 	}
 	void operator*=(float rhs)
 	{
 		r *= rhs;
 		g *= rhs;
 		b *= rhs;
-		this->clamp();
+		this->Clamp();
 	}
 	friend Color operator*(float lhs, const Color& rhs)
 	{
-		return Color(lhs * rhs.r, lhs * rhs.g, lhs * rhs.b).clamp();
+		return Color(lhs * rhs.r, lhs * rhs.g, lhs * rhs.b).Clamp();
 	}
 	Color operator*(const Color& rhs) const
 	{
-		return Color(r * rhs.r, g * rhs.g, b * rhs.b).clamp();
+		return Color(r * rhs.r, g * rhs.g, b * rhs.b).Clamp();
 	}
 	void operator*=(const Color& rhs)
 	{
 		r *= rhs.r;
 		g *= rhs.g;
 		b *= rhs.b;
-		this->clamp();
+		this->Clamp();
 	}
 	Color operator/(float rhs) const
 	{
-		return Color(r / rhs, g / rhs, b / rhs).clamp();
+		return Color(r / rhs, g / rhs, b / rhs).Clamp();
 	}
 	friend Color operator/(float lhs, const Color& rhs)
 	{
-		return Color(rhs.r / lhs, rhs.g / lhs, rhs.b / lhs).clamp();
+		return Color(rhs.r / lhs, rhs.g / lhs, rhs.b / lhs).Clamp();
 	}
 	void operator/=(float rhs)
 	{
 		r /= rhs;
 		g /= rhs;
 		b /= rhs;
-		this->clamp();
+		this->Clamp();
 	}
 
 	friend std::ostream& operator<<(std::ostream& os, const Color& obj)
@@ -69,10 +69,10 @@ public:
 		return os;
 	}
 
-	Color clamp() const;
-	Color normalize() const;
-	static inline float clamp(const float lo, const float hi, const float v);
-	static Color getRandomColor();
+	Color Clamp() const;
+	Color Normalize() const;
+	static inline float Clamp(const float lo, const float hi, const float v);
+	static Color GetRandomColor();
 
 	// Predefined colors
 	static const Color white;

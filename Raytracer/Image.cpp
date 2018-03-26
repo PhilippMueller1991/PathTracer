@@ -2,16 +2,16 @@
 
 #include <iostream>
 
-void Image::setPixel(int idx, Color color)
+void Image::SetPixel(int idx, Color color)
 {
 	data[idx].r = color.r;
 	data[idx].g = color.g;
 	data[idx].b = color.b;
 }
 
-void Image::saveBitmap(std::string filename)
+void Image::SaveBitmap(std::string filename)
 {
-	FILE * imageFile;
+	FILE* imageFile;
 
 	int numPixels = width * height;
 	int bitmapSize = 4 * numPixels;

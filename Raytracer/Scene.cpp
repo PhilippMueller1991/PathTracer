@@ -52,23 +52,23 @@ void FillScenePlane(Scene* scene)
 	// Small inner Cube
 	const float c = 0.5f;
 	Vec3f scale(1, 1, 1);
-	const Rotation r = Rotation::eulerAngles(PI / 4.0f, 0, PI / 4.0f);
+	const Rotation r = Rotation::EulerAngles(PI / 4.0f, 0, PI / 4.0f);
 	// Normals have to point outwarts
-	scene->objects.push_back(new Plane(r * (c * Vec3f(0, -1, 0)), r * Rotation::eulerAngles(PI / 2.0f, 0, 0), scale,  matGray));
-	scene->objects.push_back(new Plane(r * (c * Vec3f(0, 1, 0)),  r * Rotation::eulerAngles(-PI / 2.0f, 0, 0), scale, matGray));
-	scene->objects.push_back(new Plane(r * (c * Vec3f(-1, 0, 0)), r * Rotation::eulerAngles(0, -PI / 2.0f, 0), scale, matRed));
-	scene->objects.push_back(new Plane(r * (c * Vec3f(1, 0, 0)),  r * Rotation::eulerAngles(0, PI / 2.0f, 0), scale, matBlue));
-	scene->objects.push_back(new Plane(r * (c * Vec3f(0, 0, 1)),  r * Rotation::eulerAngles(0, 0, 0), scale, matGreen));
-	scene->objects.push_back(new Plane(r * (c * Vec3f(0, 0, -1)), r * Rotation::eulerAngles(0, PI, 0), scale, matGreen));
+	scene->objects.push_back(new Plane(r * (c * Vec3f(0, -1, 0)), r * Rotation::EulerAngles(PI / 2.0f, 0, 0), scale,  matGray));
+	scene->objects.push_back(new Plane(r * (c * Vec3f(0, 1, 0)),  r * Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matGray));
+	scene->objects.push_back(new Plane(r * (c * Vec3f(-1, 0, 0)), r * Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matRed));
+	scene->objects.push_back(new Plane(r * (c * Vec3f(1, 0, 0)),  r * Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matBlue));
+	scene->objects.push_back(new Plane(r * (c * Vec3f(0, 0, 1)),  r * Rotation::EulerAngles(0, 0, 0), scale, matGreen));
+	scene->objects.push_back(new Plane(r * (c * Vec3f(0, 0, -1)), r * Rotation::EulerAngles(0, PI, 0), scale, matGreen));
 
 	// Bigger outer cube
 	scale *= 5;
-	scene->objects.push_back(new Plane(Vec3f(0, -5, 0),  Rotation::eulerAngles(-PI / 2.0f, 0, 0), Vec3f(10, 20, 0), matDiffuseGray));
-	scene->objects.push_back(new Plane(Vec3f(0, 5, 0),   Rotation::eulerAngles(PI / 2.0f, 0, 0),	Vec3f(10, 20, 0), matDiffuseGray));
-	scene->objects.push_back(new Plane(Vec3f(-5, 0, 0),  Rotation::eulerAngles(0, PI / 2.0f, 0),	Vec3f(20, 10, 0), matDiffuseRed));
-	scene->objects.push_back(new Plane(Vec3f(5, 0, 0),   Rotation::eulerAngles(0, -PI / 2.0f, 0), Vec3f(20, 10, 0), matDiffuseBlue));
-	scene->objects.push_back(new Plane(Vec3f(0, 0, 10),  Rotation::eulerAngles(0, PI, 0),			Vec3f(10, 10, 0), matDiffuseGreen));
-	scene->objects.push_back(new Plane(Vec3f(0, 0, -10), Rotation::eulerAngles(0, 0, 0),			Vec3f(10, 10, 0), matDiffuseYellow));
+	scene->objects.push_back(new Plane(Vec3f(0, -5, 0),  Rotation::EulerAngles(-PI / 2.0f, 0, 0), Vec3f(10, 20, 0), matDiffuseGray));
+	scene->objects.push_back(new Plane(Vec3f(0, 5, 0),   Rotation::EulerAngles(PI / 2.0f, 0, 0),	Vec3f(10, 20, 0), matDiffuseGray));
+	scene->objects.push_back(new Plane(Vec3f(-5, 0, 0),  Rotation::EulerAngles(0, PI / 2.0f, 0),	Vec3f(20, 10, 0), matDiffuseRed));
+	scene->objects.push_back(new Plane(Vec3f(5, 0, 0),   Rotation::EulerAngles(0, -PI / 2.0f, 0), Vec3f(20, 10, 0), matDiffuseBlue));
+	scene->objects.push_back(new Plane(Vec3f(0, 0, 10),  Rotation::EulerAngles(0, PI, 0),			Vec3f(10, 10, 0), matDiffuseGreen));
+	scene->objects.push_back(new Plane(Vec3f(0, 0, -10), Rotation::EulerAngles(0, 0, 0),			Vec3f(10, 10, 0), matDiffuseYellow));
 
 	// Shere
 	//scene->objects.push_back(new Sphere(Vec3f(0, 0, 0), 0.8f, matGlass));
@@ -98,11 +98,11 @@ void FillSceneBox(Scene* scene)
 	const float c = 1.5f;
 	const Vec3f scale(3, 3, 3);
 	// Build box
-	scene->objects.push_back(new Plane(Vec3f(0, -1, 0),	  Rotation::eulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseTexture));
-	scene->objects.push_back(new Plane(c * Vec3f(0, 1, 0),  Rotation::eulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
-	scene->objects.push_back(new Plane(c * Vec3f(-1, 0, 0), Rotation::eulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
-	scene->objects.push_back(new Plane(c * Vec3f(1, 0, 0),  Rotation::eulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
-	scene->objects.push_back(new Plane(c * Vec3f(0, 0, 1),  Rotation::eulerAngles(0, PI, 0), scale, matDiffuseGreen));
+	scene->objects.push_back(new Plane(Vec3f(0, -1, 0),	  Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseTexture));
+	scene->objects.push_back(new Plane(c * Vec3f(0, 1, 0),  Rotation::EulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(c * Vec3f(-1, 0, 0), Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
+	scene->objects.push_back(new Plane(c * Vec3f(1, 0, 0),  Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
+	scene->objects.push_back(new Plane(c * Vec3f(0, 0, 1),  Rotation::EulerAngles(0, PI, 0), scale, matDiffuseGreen));
 	//Fill box
 	scene->objects.push_back(new Sphere(Vec3f(-0.5f, -0.5f, 0.5f), 0.5f, matMirror));
 	scene->objects.push_back(new Sphere(Vec3f(0.6f, -0.5f, -0.5f), 0.5f, matGlass));
@@ -128,11 +128,11 @@ void FillSceneGlass(Scene* scene)
 	const float c = 1.5f;
 	const Vec3f scale(3, 3, 3);
 	// Build box
-	scene->objects.push_back(new Plane(c * Vec3f(0, -1, 0), Rotation::eulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
-	scene->objects.push_back(new Plane(c * Vec3f(0, 1, 0), Rotation::eulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
-	scene->objects.push_back(new Plane(c * Vec3f(-1, 0, 0), Rotation::eulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
-	scene->objects.push_back(new Plane(c * Vec3f(1, 0, 0), Rotation::eulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
-	scene->objects.push_back(new Plane(c * Vec3f(0, 0, 1), Rotation::eulerAngles(0, PI, 0), scale, matDiffuseGreen));
+	scene->objects.push_back(new Plane(c * Vec3f(0, -1, 0), Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(c * Vec3f(0, 1, 0), Rotation::EulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(c * Vec3f(-1, 0, 0), Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
+	scene->objects.push_back(new Plane(c * Vec3f(1, 0, 0), Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
+	scene->objects.push_back(new Plane(c * Vec3f(0, 0, 1), Rotation::EulerAngles(0, PI, 0), scale, matDiffuseGreen));
 	//Fill box
 	float start = 0.9f;
 	const float offset = 0.5f;
@@ -159,7 +159,7 @@ void FillSceneManyRandomSpheres(Scene* scene)
 	// Scene objects
 	const Vec3f scale(80, 80, 80);
 	// Build box
-	scene->objects.push_back(new Plane(Vec3f(0, -1, 0), Rotation::eulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(Vec3f(0, -1, 0), Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseGray));
 	// Place spheres on plane
 	float start = 0.9f;
 	const float offset = 0.5f;
@@ -171,8 +171,8 @@ void FillSceneManyRandomSpheres(Scene* scene)
 			scene->objects.push_back(new Sphere(Vec3f(static_cast<float>(i), -0.7f, static_cast<float>(j)),
 				0.3f,
 				Material((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX,
-					Color::getRandomColor(),
-					Color::getRandomColor(),
+					Color::GetRandomColor(),
+					Color::GetRandomColor(),
 					(rand() % 2 / 2.0f),
 					(float)rand() / (float)RAND_MAX)));
 		}
@@ -209,18 +209,18 @@ void FillSceneMesh(Scene* scene)
 	const float c = 1.5f;
 	const Vec3f scale(3, 3, 3);
 	// Build box
-	scene->objects.push_back(new Plane(Vec3f(0, -1, 0), Rotation::eulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseTexture));
-	scene->objects.push_back(new Plane(c * Vec3f(0, 1, 0), Rotation::eulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
-	scene->objects.push_back(new Plane(c * Vec3f(-1, 0, 0), Rotation::eulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
-	scene->objects.push_back(new Plane(c * Vec3f(1, 0, 0), Rotation::eulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
-	scene->objects.push_back(new Plane(c * Vec3f(0, 0, 1), Rotation::eulerAngles(0, PI, 0), scale, matDiffuseGreen));
+	scene->objects.push_back(new Plane(Vec3f(0, -1, 0), Rotation::EulerAngles(-PI / 2.0f, 0, 0), scale, matDiffuseTexture));
+	scene->objects.push_back(new Plane(c * Vec3f(0, 1, 0), Rotation::EulerAngles(PI / 2.0f, 0, 0), scale, matDiffuseGray));
+	scene->objects.push_back(new Plane(c * Vec3f(-1, 0, 0), Rotation::EulerAngles(0, PI / 2.0f, 0), scale, matDiffuseRed));
+	scene->objects.push_back(new Plane(c * Vec3f(1, 0, 0), Rotation::EulerAngles(0, -PI / 2.0f, 0), scale, matDiffuseBlue));
+	scene->objects.push_back(new Plane(c * Vec3f(0, 0, 1), Rotation::EulerAngles(0, PI, 0), scale, matDiffuseGreen));
 	//Fill box
-	Mesh *suzanne = new Mesh(Vec3f::zero, Rotation::eye(), Vec3f::one, matDiffuseWhite);
+	Mesh *suzanne = new Mesh(Vec3f::zero, Rotation::Eye(), Vec3f::one, matDiffuseWhite);
 	//suzanne->loadOBJ("..//plane.obj");
-	suzanne->loadOBJ("..//halfCube.obj");
+	suzanne->LoadOBJ("..//halfCube.obj");
 	//suzanne->loadOBJ("..//cube.obj");
 	//suzanne->loadOBJ("..//suzanne.obj");
-	suzanne->printBuffers();
+	suzanne->PrintBuffers();
 	scene->objects.push_back(suzanne);
 
 	// Lights
@@ -236,19 +236,19 @@ int main(int argc, char** argv)
 	//const Vec3f camPos(0.5f, 1.0f, -3.0f);
 	const Vec3f camPos(-1.0f, 0.0f, -3.0f);
 	const Vec3f lookAt(0.5f, 0, 0);
-	const Vec3f camDir = (lookAt - camPos).normalize();
+	const Vec3f camDir = (lookAt - camPos).Normalize();
 	Camera cam = Camera(camPos, camDir, IMAGE_WIDTH, IMAGE_HEIGHT);
 
 	// Scene
 	Scene scene = Scene(cam);
 
 	// Fill test scene
-	//CreateSceneFourSpheres(&scene);
-	//CreateScenePlane(&scene);
+	//FillSceneFourSpheres(&scene);
+	//FillScenePlane(&scene);
 	FillSceneBox(&scene);
-	//CreateSceneGlass(&scene);
-	//CreateSceneManyRandomSpheres(&scene);
-	//CreateSceneMesh(&scene);
+	//FillSceneGlass(&scene);
+	//FillSceneManyRandomSpheres(&scene);
+	//FillSceneMesh(&scene);
 
 	// Raytracer
 	Raytracer rt(&scene);
@@ -258,7 +258,7 @@ int main(int argc, char** argv)
 	// Render raytraced image and measure time
 	std::cout << "Rendering scene..." << std::endl;
 	auto begin = std::chrono::high_resolution_clock::now();
-	rt.render(IMAGE_WIDTH, IMAGE_HEIGHT);
+	rt.Render(IMAGE_WIDTH, IMAGE_HEIGHT);
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
 	std::cout << duration << " ms total." << std::endl;

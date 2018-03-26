@@ -8,7 +8,7 @@
 class MeshLoader
 {
 public:
-	static bool loadOBJMesh(const std::string& fileName, 
+	static bool LoadOBJMesh(const std::string& fileName, 
 		std::vector<Vec3f>& vertices, 
 		std::vector<Vec3f>& normals,
 		std::vector<Vec2f>& uvs,
@@ -39,14 +39,14 @@ public:
 			{
 			case 'v':
 				if (line[1] == 't')	// Texture entry
-					uvs.push_back(parseVec2(line));
+					uvs.push_back(ParseVec2f(line));
 				else if (line[1] == 'n')	// Normal vector entry
-					normals.push_back(parseVec3(line));
+					normals.push_back(ParseVec3f(line));
 				else if (line[1] == ' ' || line[1] == '\t')	// Vertex position entry
-					vertices.push_back(parseVec3(line));
+					vertices.push_back(ParseVec3f(line));
 				break;
 			case 'f':	// Connectivity information
-				createFace(line, vidxs, uvidxs, nidxs);
+				CreateFace(line, vidxs, uvidxs, nidxs);
 				break;
 			default:
 				break;
@@ -59,7 +59,7 @@ public:
 private:
 	MeshLoader() = default;
 
-	static Vec2f parseVec2(const std::string& line)
+	static Vec2f ParseVec2f(const std::string& line)
 	{ 
 		uint32_t tokenLength = static_cast<uint32_t>(line.length());
 		const char* tokenString = line.c_str();
@@ -72,17 +72,17 @@ private:
 			vertIndexStart++;
 		}
 		// X
-		uint32_t vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, ' ');
-		float x = parseFloatValue(line, vertIndexStart, vertIndexEnd);
+		uint32_t vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, ' ');
+		float x = ParseFloat(line, vertIndexStart, vertIndexEnd);
 		// Y
 		vertIndexStart = vertIndexEnd + 1;
-		vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, ' ');
-		float y = parseFloatValue(line, vertIndexStart, vertIndexEnd);
+		vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, ' ');
+		float y = ParseFloat(line, vertIndexStart, vertIndexEnd);
 
 		return Vec2f(x, y);
 	}
 
-	static Vec3f parseVec3(const std::string& line)
+	static Vec3f ParseVec3f(const std::string& line)
 	{
 		uint32_t tokenLength = static_cast<uint32_t>(line.length());
 		const char* tokenString = line.c_str();
@@ -95,33 +95,33 @@ private:
 			vertIndexStart++;
 		}
 		// X
-		uint32_t vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, ' ');
-		float x = parseFloatValue(line, vertIndexStart, vertIndexEnd);
+		uint32_t vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, ' ');
+		float x = ParseFloat(line, vertIndexStart, vertIndexEnd);
 		// Y
 		vertIndexStart = vertIndexEnd + 1;
-		vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, ' ');
-		float y = parseFloatValue(line, vertIndexStart, vertIndexEnd);
+		vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, ' ');
+		float y = ParseFloat(line, vertIndexStart, vertIndexEnd);
 		// Z
 		vertIndexStart = vertIndexEnd + 1;
-		vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, ' ');
-		float z = parseFloatValue(line, vertIndexStart, vertIndexEnd);
+		vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, ' ');
+		float z = ParseFloat(line, vertIndexStart, vertIndexEnd);
 
 		return Vec3f(x, y, z);
 	}
 
-	static void createFace(const std::string& line, 
+	static void CreateFace(const std::string& line, 
 		std::vector<uint32_t>& vidxs,
 		std::vector<uint32_t>& uvidxs,
 		std::vector<uint32_t>& nidxs)
 	{
-		std::vector<std::string> tokens = splitString(line, ' ');
+		std::vector<std::string> tokens = SplitString(line, ' ');
 
-		parseIndex(tokens[1], vidxs, uvidxs, nidxs);
-		parseIndex(tokens[2], vidxs, uvidxs, nidxs);
-		parseIndex(tokens[3], vidxs, uvidxs, nidxs);
+		ParseIndex(tokens[1], vidxs, uvidxs, nidxs);
+		ParseIndex(tokens[2], vidxs, uvidxs, nidxs);
+		ParseIndex(tokens[3], vidxs, uvidxs, nidxs);
 	}
 
-	static inline void parseIndex(const std::string& token, 
+	static inline void ParseIndex(const std::string& token, 
 		std::vector<uint32_t>& vidxs, 
 		std::vector<uint32_t>& uvidxs, 
 		std::vector<uint32_t>& nidxs)
@@ -134,25 +134,25 @@ private:
 
 		// v
 		uint32_t vertIndexStart = 0;
-		uint32_t vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, '/');
-		vidxs.push_back(parseIndexValue(token, vertIndexStart, vertIndexEnd));
+		uint32_t vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, '/');
+		vidxs.push_back(ParseIndex(token, vertIndexStart, vertIndexEnd));
 		
 		// vt
 		if (vertIndexEnd >= tokenLength)
 			return;
 		vertIndexStart = vertIndexEnd + 1;
-		vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, '/');
-		uvidxs.push_back(parseIndexValue(token, vertIndexStart, vertIndexEnd));
+		vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, '/');
+		uvidxs.push_back(ParseIndex(token, vertIndexStart, vertIndexEnd));
 		
 		// vn
 		if (vertIndexEnd >= tokenLength)
 			return;
 		vertIndexStart = vertIndexEnd + 1;
-		vertIndexEnd = findNextChar(vertIndexStart, tokenString, tokenLength, '/');
-		nidxs.push_back(parseIndexValue(token, vertIndexStart, vertIndexEnd));
+		vertIndexEnd = FindNextToken(vertIndexStart, tokenString, tokenLength, '/');
+		nidxs.push_back(ParseIndex(token, vertIndexStart, vertIndexEnd));
 	}
 
-	static inline uint32_t findNextChar(uint32_t start, const char* str, uint32_t length, char token)
+	static inline uint32_t FindNextToken(uint32_t start, const char* str, uint32_t length, char token)
 	{
 		uint32_t result = start;
 		while (result < length)
@@ -164,17 +164,17 @@ private:
 		return result;
 	}
 
-	static inline int parseIndexValue(const std::string& token, uint32_t start, uint32_t end)
+	static inline int ParseIndex(const std::string& token, uint32_t start, uint32_t end)
 	{
 		return atoi(token.substr(start, end - start).c_str()) - 1;
 	}
 
-	static inline float parseFloatValue(const std::string& token, uint32_t start, uint32_t end)
+	static inline float ParseFloat(const std::string& token, uint32_t start, uint32_t end)
 	{
 		return static_cast<float>(atof(token.substr(start, end - start).c_str()));
 	}
 
-	static inline std::vector<std::string> splitString(const std::string &s, char delim)
+	static inline std::vector<std::string> SplitString(const std::string &s, char delim)
 	{
 		std::vector<std::string> elems;
 

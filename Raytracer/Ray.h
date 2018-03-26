@@ -5,7 +5,7 @@
 class Ray
 {
 public:
-	const enum RayType { RAY_DIFFUSE, RAY_SPECULAR, RAY_TRANSMISSION, RAY_SHADOW };
+	const enum RayType { RAY_DIFFUSE, RAY_SPECULAR, RAY_TRANSMISSION, RAY_SHADOW };	// Not used atm
 	//RayType type;
 
 	Vec3f origin, direction;
@@ -18,10 +18,10 @@ public:
 	}
 	~Ray() {}
 
-	Vec3f chooseRandomDirection(Ray::RayType rayType, Vec3f n);
+	Vec3f ChooseRandomDirection(Ray::RayType rayType, Vec3f n);
 
 protected:
-	Vec3f uniformSampleHemisphere(float u1, float u2);
-	Vec3f cosineSampleHemisphere(float u1, float u2);
+	Vec3f UniformSampleHemisphere(float u1, float u2);
+	Vec3f CosineSampleHemisphere(float u1, float u2);
 };
 

@@ -1,13 +1,13 @@
 #include "Mesh.h"
 
-Vec3f Mesh::getNormalAt(Vec3f pos)
+Vec3f Mesh::GetNormalAt(Vec3f pos)
 {
 	// No normal interpolation, instead triangle normal calculation
 	const int size = static_cast<int>(nidxs.size());
 	int i = 0;
 	for (; i < size; i+=3)
 	{
-		bool isHit = Triangle::isOnSurface(pos, vertices[vidxs[i]], vertices[vidxs[i + 1]], vertices[vidxs[i + 2]]);
+		bool isHit = Triangle::IsOnSurface(pos, vertices[vidxs[i]], vertices[vidxs[i + 1]], vertices[vidxs[i + 2]]);
 		if (isHit)
 		{
 			//return -Triangle::getNormal(vertices[indices[i]], vertices[indices[i + 1]], vertices[indices[i + 2]]);
@@ -19,19 +19,19 @@ Vec3f Mesh::getNormalAt(Vec3f pos)
 }
 
 // TODO
-Color Mesh::getColorAt(Vec3f pos)
+Color Mesh::GetColorAt(Vec3f pos)
 {
-	return material.getColorAt(0, 0);
+	return material.GetColorAt(0, 0);
 }
 
-bool Mesh::findIntersection(Ray& ray, float& dist)
+bool Mesh::FindIntersection(Ray& ray, float& dist)
 {
 	dist = -1.0f;
 	const int size = static_cast<int>(vidxs.size());
 	int i = 0;
 	for (; i < size; i += 3)
 	{
-		bool isHit = Triangle::findIntersection(ray,
+		bool isHit = Triangle::FindIntersection(ray,
 			vertices[vidxs[i + 0]],
 			vertices[vidxs[i + 1]],
 			vertices[vidxs[i + 2]],
@@ -43,13 +43,13 @@ bool Mesh::findIntersection(Ray& ray, float& dist)
 	return false;
 }
 
-bool Mesh::loadOBJ(const std::string& fileName)
+bool Mesh::LoadOBJ(const std::string& fileName)
 {
-	clearBuffers();
-	return MeshLoader::loadOBJMesh(fileName, vertices, normals, uvs, vidxs, uvidxs, nidxs);
+	ClearBuffers();
+	return MeshLoader::LoadOBJMesh(fileName, vertices, normals, uvs, vidxs, uvidxs, nidxs);
 }
 
-void Mesh::printBuffers()
+void Mesh::PrintBuffers()
 {
 	std::cout << "#v " << vertices.size() << '\n';
 	std::cout << "#vn " << normals.size() << '\n';
@@ -77,7 +77,7 @@ void Mesh::printBuffers()
 	}
 }
 
-void Mesh::clearBuffers()
+void Mesh::ClearBuffers()
 {
 	vertices.clear();
 	normals.clear();

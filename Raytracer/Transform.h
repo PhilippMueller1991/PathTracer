@@ -10,7 +10,7 @@ public:
 	Rotation rot;
 	Vec3f scale;
 
-	Transform(Vec3f pos = Vec3f(0, 0, 0), Rotation rot = Rotation::eye(), Vec3f scale = Vec3f(1, 1, 1))
+	Transform(Vec3f pos = Vec3f(0, 0, 0), Rotation rot = Rotation::Eye(), Vec3f scale = Vec3f(1, 1, 1))
 		: pos(pos), rot(rot), scale(scale)
 	{
 	}

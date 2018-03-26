@@ -1,16 +1,16 @@
 #include "Sphere.h"
 #include <math.h>
 
-Vec3f Sphere::getNormalAt(Vec3f pos)
+Vec3f Sphere::GetNormalAt(Vec3f pos)
 {
-	return (pos - transform.pos).normalize();
+	return (pos - transform.pos).Normalize();
 }
 
-bool Sphere::findIntersection(Ray& ray, float& dist) 
+bool Sphere::FindIntersection(Ray& ray, float& dist) 
 {
 	Vec3f delta = ray.origin - transform.pos;
-	float b = ray.direction.dot(delta);
-	float c = delta.dot(delta) - (r * r);
+	float b = ray.direction.Dot(delta);
+	float c = delta.Dot(delta) - (r * r);
 	float root = b * b - c;
 	
 	if (root < EPS)

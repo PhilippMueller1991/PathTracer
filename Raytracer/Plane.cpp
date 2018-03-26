@@ -1,15 +1,15 @@
 #include "Plane.h"
 #include <math.h>
 
-Vec3f Plane::getNormalAt(Vec3f pos)
+Vec3f Plane::GetNormalAt(Vec3f pos)
 {
 	return normal;
 }
 
-bool Plane::findIntersection(Ray& ray, float& dist)
+bool Plane::FindIntersection(Ray& ray, float& dist)
 {
-	float denominator = ray.direction.dot(normal);
-	float enumerator = (transform.pos - ray.origin).dot(normal);
+	float denominator = ray.direction.Dot(normal);
+	float enumerator = (transform.pos - ray.origin).Dot(normal);
 
 	if (fabsf(denominator) <= EPS || fabsf(enumerator) <= EPS)
 		return false;
@@ -18,8 +18,8 @@ bool Plane::findIntersection(Ray& ray, float& dist)
 	Vec3f hitPos = ray.origin + ray.direction * d;
 	Vec3f xDir = transform.rot * Vec3f::right;
 	Vec3f yDir = transform.rot * Vec3f::up;
-	float xDistance = hitPos.dot(xDir);
-	float yDistance = hitPos.dot(yDir);
+	float xDistance = hitPos.Dot(xDir);
+	float yDistance = hitPos.Dot(yDir);
 
 	if (fabsf(xDistance) > transform.scale.x / 2.0f || fabsf(yDistance) > transform.scale.y / 2.0f)
 		return false;
@@ -28,18 +28,18 @@ bool Plane::findIntersection(Ray& ray, float& dist)
 	return true;
 }
 
-Color Plane::getColorAt(Vec3f pos)
+Color Plane::GetColorAt(Vec3f pos)
 {
 	if (material.texture == nullptr)
 		return material.diffuseColor;
 
 	Vec3f xDir = transform.rot * Vec3f::right;
 	Vec3f yDir = transform.rot * Vec3f::up;
-	float xDistance = pos.dot(xDir);
-	float yDistance = pos.dot(yDir);
+	float xDistance = pos.Dot(xDir);
+	float yDistance = pos.Dot(yDir);
 
 	float u = (xDistance + transform.scale.x / 2.0f) / (transform.scale.x);
 	float v = (yDistance + transform.scale.y / 2.0f) / (transform.scale.y);
 
-	return material.getColorAt(u, v);
+	return material.GetColorAt(u, v);
 }

@@ -43,14 +43,14 @@ public:
 	}
 	~Material() {}
 
-	inline Ray::RayType chooseRandomRayType();
+	inline Ray::RayType ChooseRandomRayType();
 	Vec3f DisturbeReflectionDir(Vec3f reflectionDir) const;
 
 	// Getter and setter
-	float getKd() const { return kd; }
-	float getKs() const { return ks; }
-	float getKt() const { return kt; }
-	Color getColorAt(float u, float v) const;
-	void setTexture(std::shared_ptr<Texture> tex);
+	float GetKd() const { return kd; }
+	float GetKs() const { return ks; }
+	float GetKt() const { return kt; }
+	Color GetColorAt(float u, float v) const;
+	void SetTexture(std::shared_ptr<Texture> tex);
 };
 

@@ -6,7 +6,7 @@
 #include <math.h>
 #include <random>
 
-Vec3f Ray::chooseRandomDirection(Ray::RayType rayType, Vec3f n)
+Vec3f Ray::ChooseRandomDirection(Ray::RayType rayType, Vec3f n)
 {
 	// Probability of choosing directions should be proportional to the cosine between
 	// d and r for glossy reflections
@@ -17,14 +17,14 @@ Vec3f Ray::chooseRandomDirection(Ray::RayType rayType, Vec3f n)
 
 	if (rayType == RayType::RAY_DIFFUSE)
 	{
-		float invDot = 1 - direction.dot(n);
+		float invDot = 1 - direction.Dot(n);
 		
 		return dir;
 	}
 	else if (rayType == RayType::RAY_SPECULAR)
 	{
-		Vec3f r = Vec3f::reflect(direction, n);
-		float invDot = 1 - direction.dot(r);
+		Vec3f r = Vec3f::Reflect(direction, n);
+		float invDot = 1 - direction.Dot(r);
 
 		return dir;
 	}
@@ -33,7 +33,7 @@ Vec3f Ray::chooseRandomDirection(Ray::RayType rayType, Vec3f n)
 }
 
 // TODO: Change it so it returns correct oriented Vec3f or add additional methods to do so
-Vec3f Ray::uniformSampleHemisphere(float u1, float u2)
+Vec3f Ray::UniformSampleHemisphere(float u1, float u2)
 {
     const float r = sqrtf(1.0f - u1 * u1);
     const float phi = 2 * static_cast<float>(M_PI) * u2;
@@ -41,7 +41,7 @@ Vec3f Ray::uniformSampleHemisphere(float u1, float u2)
     return Vec3f(cosf(phi) * r, sinf(phi) * r, u1);
 }
 
-Vec3f Ray::cosineSampleHemisphere(float u1, float u2)
+Vec3f Ray::CosineSampleHemisphere(float u1, float u2)
 {
 	const float r = sqrtf(u1);
 	const float phi = 2 * static_cast<float>(M_PI) * u2;
