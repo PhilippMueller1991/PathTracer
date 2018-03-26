@@ -10,14 +10,14 @@ class Vector
 {
 };
 
-template<>
-class Vector<float, 3>
+template<typename T>
+class Vector<T, 3>
 {
 public:
-	float x, y, z;
+	T x, y, z;
 
 public:
-	Vector(float a = 0.0f, float b = 0.0f, float c = 0.0f)
+	Vector(T a = 0, T b = 0, T c = 0)
 		: x(a), y(b), z(c)
 	{
 	}
@@ -51,29 +51,29 @@ public:
 		y -= rhs.y;
 		z -= rhs.z;
 	}
-	inline Vector operator*(float rhs) const
+	inline Vector operator*(T rhs) const
 	{
 		return Vector(x * rhs, y * rhs, z * rhs);
 	}
-	inline friend Vector operator*(float lhs, const Vector& rhs)
+	inline friend Vector operator*(T lhs, const Vector& rhs)
 	{
 		return Vector(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z);
 	}
-	inline void operator*=(float rhs)
+	inline void operator*=(T rhs)
 	{
 		x *= rhs;
 		y *= rhs;
 		z *= rhs;
 	}
-	inline Vector operator/(float rhs) const
+	inline Vector operator/(T rhs) const
 	{
 		return Vector(x / rhs, y / rhs, z / rhs);
 	}
-	inline friend Vector operator/(float lhs, const Vector& rhs)
+	inline friend Vector operator/(T lhs, const Vector& rhs)
 	{
 		return Vector(rhs.x / lhs, rhs.y / lhs, rhs.z / lhs);
 	}
-	inline void operator/=(float rhs)
+	inline void operator/=(T rhs)
 	{
 		x /= rhs;
 		y /= rhs;
@@ -85,7 +85,7 @@ public:
 	}
 	inline friend std::ostream& operator<<(std::ostream& os, const Vector& obj)
 	{
-		os << "Vec3f(" << obj.x << "," << obj.y << "," << obj.z << ")";
+		os << "Vec3(" << obj.x << "," << obj.y << "," << obj.z << ")";
 		return os;
 	}
 
@@ -112,12 +112,12 @@ public:
 	{
 		return *this / magnitude();
 	}
-	
+
 	static Vector reflect(const Vector& incident, const Vector& normal)
 	{
 		return incident - 2.0f * (incident.dot(normal))*normal;
 	}
-	static Vector refract(const Vector& incident, const Vector& normal, float n1, float n2) 
+	static Vector refract(const Vector& incident, const Vector& normal, float n1, float n2)
 	{
 		float n = n1 / n2;
 		float cosI = -incident.dot(normal);
@@ -157,14 +157,14 @@ public:
 	const static Vector one;
 };
 
-template<>
-class Vector<float, 2>
+template<typename T>
+class Vector<T, 2>
 {
 public:
-	float x, y;
+	T x, y;
 
 public:
-	Vector(float a = 0.0f, float b = 0.0f)
+	Vector(T a = 0, T b = 0)
 		: x(a), y(b)
 	{
 	}
@@ -196,28 +196,28 @@ public:
 		x -= rhs.x;
 		y -= rhs.y;
 	}
-	inline Vector operator*(float rhs) const
+	inline Vector operator*(T rhs) const
 	{
 		return Vector(x * rhs, y * rhs);
 	}
-	inline friend Vector operator*(float lhs, const Vector& rhs)
+	inline friend Vector operator*(T lhs, const Vector& rhs)
 	{
 		return Vector(lhs * rhs.x, lhs * rhs.y);
 	}
-	inline void operator*=(float rhs)
+	inline void operator*=(T rhs)
 	{
 		x *= rhs;
 		y *= rhs;
 	}
-	inline Vector operator/(float rhs) const
+	inline Vector operator/(T rhs) const
 	{
 		return Vector(x / rhs, y / rhs);
 	}
-	inline friend Vector operator/(float lhs, const Vector& rhs)
+	inline friend Vector operator/(T lhs, const Vector& rhs)
 	{
 		return Vector(rhs.x / lhs, rhs.y / lhs);
 	}
-	inline void operator/=(float rhs)
+	inline void operator/=(T rhs)
 	{
 		x /= rhs;
 		y /= rhs;
@@ -228,7 +228,7 @@ public:
 	}
 	inline friend std::ostream& operator<<(std::ostream& os, const Vector& obj)
 	{
-		os << "Vec2f(" << obj.x << "," << obj.y << ")";
+		os << "Vec2(" << obj.x << "," << obj.y << ")";
 		return os;
 	}
 
@@ -255,8 +255,7 @@ public:
 	}
 	Vector normalize() const
 	{
-		float length = magnitude();
-		return *this / length;
+		return *this / magnitude();
 	}
 
 	// Predefined vectors

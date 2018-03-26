@@ -44,10 +44,10 @@ Color Raytracer::evaluateLocalLightingModel(const Vec3f& hitPos, const Vec3f& no
 Color Raytracer::phongLightingModel(const Vec3f& hitPos, const Vec3f& normal, const Material& mat, const Color& texCol, const Light& light)
 {
 	// Early exit for normals that point away from current light and camera
-	// Camera cull allowed because we only evaluate the lighting model for _diffuse_ surfaces
+	// Camera cull allowed because we only evaluate the lighting model for diffuse surfaces
 	bool isBackwardsNormal = normal.dot(light.pos - hitPos) < 0;
 	bool isInvisibleForCam = normal.dot(scene->cam.pos - hitPos) < 0;
-	float shadowPercentage = 0.0f; //isInShadow(hitPos, light);
+	float shadowPercentage = isInShadow(hitPos, light);
 	if (isBackwardsNormal || isInvisibleForCam || shadowPercentage >= 1.0f)
 		return ambientColor;
 
@@ -129,19 +129,20 @@ Color Raytracer::traverse(Ray& ray)
 		reflectionColor = mat.getKs() * traverse(reflectRay);
 	}
 
-	// Transmission / Refraction
+	// Transmission and refraction
 	Color transmissionColor;
 	if (mat.getKt() > EPS)
 	{
 		float idr0 = ray.lastIDR;
 		float idr1 = mat.refractiveIndex;
 
-		// Total Internal Refelction (TIR)
-		float R = Vec3f::fresnelReflectance(ray.direction, normal, idr0, idr1);	// Reflection percentage
-		float T = 1.0f - R;	// Transmission percentage
+		// Total Internal Refelction
+		// Reflection percentage
+		float R = Vec3f::fresnelReflectance(ray.direction, normal, idr0, idr1);	
+		// Transmission percentage
+		float T = 1.0f - R;	
 		if (T > EPS)
 		{
-			// TBD: Do we need the EPS vector offset in transmission?
 			Vec3f transmissionDir = Vec3f::refract(ray.direction, normal, idr0, idr1);
 			Ray transmissionRay = Ray(hitPos + transmissionDir * EPS, transmissionDir, ray.bounce + 1, mat.refractiveIndex);
 			transmissionRay.direction = mat.DisturbeReflectionDir(transmissionDir);

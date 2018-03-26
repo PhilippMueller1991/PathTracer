@@ -9,11 +9,10 @@
 #define IMAGE_WIDTH 1600 / 2
 #define IMAGE_HEIGHT 900 / 2
 
-#define RAYTRACER_MAX_BOUNCE 8 / 8
-#define RAYTRACER_SAMPLES_PER_PIXEL 32 / 32
+#define RAYTRACER_MAX_BOUNCE 8
+#define RAYTRACER_SAMPLES_PER_PIXEL 32
 
-// Four spheres with high reflactence
-void CreateDebugScene0(Scene* scene)
+void FillSceneFourSpheres(Scene* scene)
 {
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
@@ -32,8 +31,7 @@ void CreateDebugScene0(Scene* scene)
 	scene->lights.push_back(new Light(Vec3f(0, 0, -3), Color::white, 1.0f));
 }
 
-// Plane scene
-void CreateDebugScene1(Scene* scene)
+void FillScenePlane(Scene* scene)
 {
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
@@ -79,8 +77,7 @@ void CreateDebugScene1(Scene* scene)
 	scene->lights.push_back(new Light(Vec3f(1, 1, -3), Color::white, 1.2f));
 }
 
-// Box scene
-void CreateDebugScene2(Scene* scene)
+void FillSceneBox(Scene* scene)
 {
 	// Textures
 	std::shared_ptr<Texture> texChessBoard = std::make_shared<TextureChessPattern>(10.0f, Color::black, Color::white);
@@ -116,8 +113,7 @@ void CreateDebugScene2(Scene* scene)
 	scene->lights.push_back(new Light(Vec3f(0.3f, 0.6f, -2.0f), Color::white, 0.6f));
 }
 
-// Box with mutliple glass spheres
-void CreateDebugScene3(Scene* scene)
+void FillSceneGlass(Scene* scene)
 {
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
@@ -151,8 +147,7 @@ void CreateDebugScene3(Scene* scene)
 	scene->lights.push_back(new Light(Vec3f(0, 0, -5.5f), Color::white, 1.2f));
 }
 
-// Large scene
-void CreateDebugScene4(Scene* scene)
+void FillSceneManyRandomSpheres(Scene* scene)
 {
 	// Materials
 	// Can't be const because global predefined colors are not initialized on compile time
@@ -193,8 +188,7 @@ void CreateDebugScene4(Scene* scene)
 	}
 }
 
-// OBJ model scene
-void CreateDebugScene5(Scene* scene)
+void FillSceneMesh(Scene* scene)
 {
 	// Textures
 	std::shared_ptr<Texture> texChessBoard = std::make_shared<TextureChessPattern>(10.0f, Color::black, Color::white);
@@ -248,20 +242,20 @@ int main(int argc, char** argv)
 	// Scene
 	Scene scene = Scene(cam);
 
-	// Fill scene
-	//CreateDebugScene0(&scene);	// Four spheres with high reflectance
-	//CreateDebugScene1(&scene);	// Plane scene
-	//CreateDebugScene2(&scene);	// Box scene
-	//CreateDebugScene3(&scene);	// Box with mutliple glass spheres
-	//CreateDebugScene4(&scene);	// Large scene
-	CreateDebugScene5(&scene);	// OBJ model scene
+	// Fill test scene
+	//CreateSceneFourSpheres(&scene);
+	//CreateScenePlane(&scene);
+	FillSceneBox(&scene);
+	//CreateSceneGlass(&scene);
+	//CreateSceneManyRandomSpheres(&scene);
+	//CreateSceneMesh(&scene);
 
 	// Raytracer
 	Raytracer rt(&scene);
 	Raytracer::samplesPerPixel = RAYTRACER_SAMPLES_PER_PIXEL;
 	Raytracer::maxBounces = RAYTRACER_MAX_BOUNCE;
 
-	// Render raytraced image
+	// Render raytraced image and measure time
 	std::cout << "Rendering scene..." << std::endl;
 	auto begin = std::chrono::high_resolution_clock::now();
 	rt.render(IMAGE_WIDTH, IMAGE_HEIGHT);

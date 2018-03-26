@@ -30,7 +30,7 @@ public:
 		: refractiveIndex(refractiveIndex), texture(texture)
 	{
 		float sum = specular + diffuse + transmisson;
-		assert(sum != 0);
+		assert(sum > 0);
 
 		kd = diffuse / sum;
 		ks = specular / sum;
